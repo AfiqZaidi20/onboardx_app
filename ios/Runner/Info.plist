@@ -5,6 +5,17 @@
 	<dict>
 		<key>NSFaceIDUsageDescription</key>
 		<string>We use Face ID to allow quick and secure sign in.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>This app needs camera access</string>
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>This app needs location access</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>This app needs photo library access</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>This app needs microphone access</string>
+		<key>NSContactsUsageDescription</key>
+		<string>This app needs contacts access</string>
+		
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
@@ -50,5 +61,9 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>https</string>
+		</array>
 	</dict>
 </plist>

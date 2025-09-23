@@ -129,7 +129,7 @@ class DocumentManagerScreen extends StatefulWidget {
 
 class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
   final FileManagerService _fileManagerService = FileManagerService();
-  String _currentPath = 'Home';
+  String _currentPath = 'My Document';
   Folder? _currentParentFolder;
 
   void _navigateToFolder(Folder folder) {
@@ -142,7 +142,7 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
   void _goBack() {
     setState(() {
       _currentParentFolder = null;
-      _currentPath = 'Home';
+      _currentPath = 'My Document';
     });
   }
 
@@ -151,16 +151,26 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
     showDialog(
       context: context,
       builder: (context) {
+        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        final Color dialogBackground = isDarkMode ? Colors.grey[900]! : Colors.white;
+        final Color textColor = Theme.of(context).colorScheme.onBackground;
+        final Color hintColor = isDarkMode ? Colors.grey[400]! : Colors.grey[600]!;
+        
         return AlertDialog(
-          title: const Text('Create New Folder'),
+          backgroundColor: dialogBackground,
+          title: Text('Create New Folder', style: TextStyle(color: textColor)),
           content: TextField(
             controller: controller,
-            decoration: const InputDecoration(hintText: 'Folder Name'),
+            style: TextStyle(color: textColor),
+            decoration: InputDecoration(
+              hintText: 'Folder Name',
+              hintStyle: TextStyle(color: hintColor),
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text('Cancel', style: TextStyle(color: hintColor)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -235,23 +245,28 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
   }
 
   void _showFileContextMenu(Document doc) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final Color menuBackground = isDarkMode ? Colors.grey[900]! : Colors.white;
+    final Color textColor = Theme.of(context).colorScheme.onBackground;
+    
     showModalBottomSheet(
       context: context,
+      backgroundColor: menuBackground,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.edit),
-              title: const Text('Edit'),
+              leading: Icon(Icons.edit, color: textColor),
+              title: Text('Edit', style: TextStyle(color: textColor)),
               onTap: () {
                 Navigator.pop(context);
                 _editFile(doc);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete),
-              title: const Text('Remove'),
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: Text('Remove', style: TextStyle(color: textColor)),
               onTap: () {
                 Navigator.pop(context);
                 _removeFile(doc);
@@ -264,23 +279,28 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
   }
 
   void _showFolderContextMenu(Folder folder) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final Color menuBackground = isDarkMode ? Colors.grey[900]! : Colors.white;
+    final Color textColor = Theme.of(context).colorScheme.onBackground;
+    
     showModalBottomSheet(
       context: context,
+      backgroundColor: menuBackground,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.drive_file_move_outlined),
-              title: const Text('Move'),
+              leading: Icon(Icons.drive_file_move_outlined, color: textColor),
+              title: Text('Move', style: TextStyle(color: textColor)),
               onTap: () {
                 Navigator.pop(context);
                 _showSnackbar('Move functionality coming soon!');
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete),
-              title: const Text('Delete'),
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: Text('Delete', style: TextStyle(color: textColor)),
               onTap: () {
                 Navigator.pop(context);
                 _deleteFolder(folder);
@@ -294,19 +314,24 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isRoot = _currentPath == 'Home';
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final Color scaffoldBackground = Theme.of(context).scaffoldBackgroundColor;
+    final Color textColor = Theme.of(context).colorScheme.onBackground;
+    final Color hintColor = isDarkMode ? Colors.grey[400]! : Colors.grey[600]!;
+    
+    final bool isRoot = _currentPath == 'My Document';
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: scaffoldBackground,
       appBar: AppBar(
-        title: Text(_currentPath),
+        title: Text(_currentPath, style: TextStyle(color: textColor)),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.black,
+        foregroundColor: textColor,
         leading: isRoot
             ? null
             : IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: Icon(Icons.arrow_back, color: textColor),
                 onPressed: _goBack,
               ),
         actions: [
@@ -318,9 +343,9 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: 'sort',
-                  child: Text('Sort by Name (A-Z)'),
+                  child: Text('Sort by Name (A-Z)', style: TextStyle(color: textColor)),
                 ),
               ],
             ),
@@ -337,7 +362,7 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
             return Center(
               child: Text(
                 isRoot ? 'No folders yet.' : 'This folder is empty.',
-                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                style: TextStyle(fontSize: 16, color: hintColor),
               ),
             );
           } else {
@@ -395,17 +420,23 @@ class FolderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final Color cardColor = Theme.of(context).cardColor;
+    final Color textColor = Theme.of(context).colorScheme.onBackground;
+    final Color hintColor = isDarkMode ? Colors.grey[400]! : Colors.grey[600]!;
+    
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
+      color: cardColor,
       child: ListTile(
-        leading: const Icon(Icons.folder_open, color: Colors.blue, size: 40),
+        leading: Icon(Icons.folder_open, color: Colors.blue, size: 40),
         title: Text(
           folder.name,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
         ),
-        subtitle: Text('${folder.children.length} items'),
+        subtitle: Text('${folder.children.length} items', style: TextStyle(color: hintColor)),
         trailing: IconButton(
-          icon: const Icon(Icons.more_vert),
+          icon: Icon(Icons.more_vert, color: hintColor),
           onPressed: onMenuTap,
         ),
         onTap: onTap,
@@ -428,6 +459,12 @@ class DocumentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final Color cardColor = Theme.of(context).cardColor;
+    final Color textColor = Theme.of(context).colorScheme.onBackground;
+    final Color hintColor = isDarkMode ? Colors.grey[400]! : Colors.grey[600]!;
+    final Color borderColor = isDarkMode ? Colors.grey[700]! : Colors.grey[300]!;
+
     IconData icon;
     Color iconColor;
     String subtitle;
@@ -448,7 +485,7 @@ class DocumentCard extends StatelessWidget {
         break;
       case DocumentStatus.pending:
         icon = Icons.add_circle;
-        iconColor = Colors.grey;
+        iconColor = hintColor;
         subtitle = document.name;
         buttonText = 'Upload';
         break;
@@ -456,7 +493,8 @@ class DocumentCard extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: 1,
+      elevation: isDarkMode ? 0 : 1,
+      color: cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -484,17 +522,17 @@ class DocumentCard extends StatelessWidget {
         ),
         title: Text(
           document.name,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Colors.black87,
+            color: textColor,
           ),
         ),
         subtitle: Text(
           subtitle,
           style: TextStyle(
             fontSize: 13,
-            color: Colors.grey[600],
+            color: hintColor,
           ),
         ),
         trailing: Row(
@@ -505,8 +543,8 @@ class DocumentCard extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: document.status == DocumentStatus.uploading ? null : onTap,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.grey[600],
-                  side: BorderSide(color: Colors.grey[300]!),
+                  foregroundColor: hintColor,
+                  side: BorderSide(color: borderColor),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -515,12 +553,12 @@ class DocumentCard extends StatelessWidget {
                 ),
                 child: Text(
                   buttonText,
-                  style: const TextStyle(fontSize: 13),
+                  style: TextStyle(fontSize: 13, color: hintColor),
                 ),
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.more_vert),
+              icon: Icon(Icons.more_vert, color: hintColor),
               onPressed: onMenuTap,
             ),
           ],

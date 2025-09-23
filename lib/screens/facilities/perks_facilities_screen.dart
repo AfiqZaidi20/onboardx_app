@@ -1,0 +1,158 @@
+import 'package:flutter/material.dart';
+import 'package:onboardx_app/screens/facilities/benefits.dart';
+
+class PerksFacilitiesScreen extends StatefulWidget {
+  const PerksFacilitiesScreen({super.key});
+
+  @override
+  State<PerksFacilitiesScreen> createState() => _PerksFacilitiesScreenState();
+}
+
+class _PerksFacilitiesScreenState extends State<PerksFacilitiesScreen> {
+  int selectedIndex = -1;
+
+  final List<Map<String, String>> perksList = [
+    {
+      "title": "Benefits Overview",
+      "image": "assets/images/benefits.png",
+    },
+    {
+      "title": "Your Office’s Location",
+      "image": "assets/images/office.png",
+    },
+    {
+      "title": "Canteen Menu",
+      "image": "assets/images/canteen.png",
+    },
+    {
+      "title": "Parking Info",
+      "image": "assets/images/parking.png",
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[200],
+      appBar: AppBar(
+        title: const Text(
+          'Perks & Facilities',
+          style: TextStyle(color: Colors.black),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.black,
+        automaticallyImplyLeading: false,
+        leading: Center(
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: const Color.fromRGBO(224, 124, 124, 1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.arrow_back_ios_new,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            children: [
+              // Search Bar
+              TextField(
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search),
+                  hintText: "Search",
+                  filled: true,
+                  fillColor: Colors.grey[300],
+                  contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Perks List
+              Expanded(
+                child: ListView.builder(
+                  itemCount: perksList.length,
+                  itemBuilder: (context, index) {
+                    bool isSelected = selectedIndex == index;
+
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedIndex = index;
+                        });
+
+                        // Navigate based on selected item
+                        if (perksList[index]["title"] == "Benefits Overview") {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const BenifitsPage(),
+                            ),
+                          );
+                        }
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 15),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          border: isSelected
+                              ? Border.all(color: Colors.black, width: 3)
+                              : null,
+                          image: DecorationImage(
+                            image: AssetImage(perksList[index]["image"]!),
+                            fit: BoxFit.cover,
+                            colorFilter: isSelected
+                                ? null
+                                : ColorFilter.mode(
+                                    Colors.black.withOpacity(0.3),
+                                    BlendMode.darken,
+                                  ),
+                          ),
+                        ),
+                        height: 100,
+                        alignment: Alignment.centerLeft,
+                        padding: const EdgeInsets.all(12),
+                        child: Text(
+                          perksList[index]["title"]!,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(
+                                  offset: Offset(1, 1),
+                                  blurRadius: 2,
+                                  color: Colors.white),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

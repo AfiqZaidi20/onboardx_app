@@ -9,7 +9,7 @@ import 'package:onboardx_app/screens/learninghub/learning_hub_screen.dart';
 import 'package:onboardx_app/screens/meettheteam/meet_the_team_screen.dart';
 import 'package:onboardx_app/screens/myjourney/appbar_my_journey.dart';
 import 'package:onboardx_app/screens/myjourney/timeline_screen.dart';
-import 'package:onboardx_app/screens/news/news1.dart';
+import 'package:onboardx_app/screens/qrcodescanner/qr_code_scanner.dart';
 import 'package:onboardx_app/screens/setting/setting_screen.dart';
 import 'package:onboardx_app/screens/taskmanager/task_manager_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // List of screens for each tab
   final List<Widget> _screens = [
     const HomeContent(), // Home tab
-    const AppBarMyJourney(), // Profile tab
+    const ScanQrScreen(), // QR Code Scanner tab
     const SettingScreen(), // Settings tab
   ];
 
@@ -67,7 +67,8 @@ class _HomeScreenState extends State<HomeScreen> {
             .doc(user.uid)
             .get();
 
-        if (!mounted) return; // penting: jangan update state kalau sudah dispose
+        if (!mounted)
+          return; // penting: jangan update state kalau sudah dispose
         if (userDoc.exists) {
           setState(() {
             _userData = userDoc.data() as Map<String, dynamic>?;
@@ -173,31 +174,43 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bool isDarkMode = theme.brightness == Brightness.dark;
+
+    // Colors that adapt to theme
+    final primaryColor = isDarkMode
+        ? const Color.fromRGBO(180, 100, 100, 1) // Darker pink for dark mode
+        : const Color.fromRGBO(224, 124, 124, 1);
+
     // Show loading indicator while checking verification
     if (_isCheckingVerification) {
-      return const Scaffold(
+      return Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            color: primaryColor,
+          ),
         ),
       );
     }
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: _screens[_selectedIndex],
-      bottomNavigationBar: _buildBottomNavBar(),
+      bottomNavigationBar: _buildBottomNavBar(primaryColor),
     );
   }
 
   // Bottom Navigation Bar
-  Widget _buildBottomNavBar() {
+  Widget _buildBottomNavBar(Color primaryColor) {
     return CurvedNavigationBar(
       backgroundColor: Colors.transparent,
-      color: const Color.fromRGBO(224, 124, 124, 1),
-      buttonBackgroundColor: const Color.fromRGBO(224, 124, 124, 1),
+      color: primaryColor,
+      buttonBackgroundColor: primaryColor,
       height: 60,
       items: const <Widget>[
         Icon(Icons.home, size: 30, color: Colors.white),
-        Icon(Icons.person, size: 30, color: Colors.white),
+        Icon(Icons.qr_code_scanner, size: 30, color: Colors.white),
         Icon(Icons.settings, size: 30, color: Colors.white),
       ],
       index: _selectedIndex,
@@ -218,7 +231,7 @@ class HomeContent extends StatefulWidget {
 class _HomeContentState extends State<HomeContent> {
   bool _isHeaderExpanded = false;
   Map<String, dynamic>? _userData;
-  final Color primaryColor = const Color.fromRGBO(224, 124, 124, 1);
+  Color? primaryColor;
 
   @override
   void initState() {
@@ -273,23 +286,58 @@ class _HomeContentState extends State<HomeContent> {
     });
   }
 
+  // Add this function to handle URL launching
+  Future<void> _launchURL(String url) async {
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        throw 'Could not launch $url';
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bool isDarkMode = theme.brightness == Brightness.dark;
+
+    // Colors that adapt to theme
+    primaryColor = isDarkMode
+        ? const Color.fromRGBO(180, 100, 100, 1) // Darker pink for dark mode
+        : const Color.fromRGBO(224, 124, 124, 1);
+
+    final cardColor = theme.cardColor;
+    final textColor = theme.textTheme.bodyLarge?.color;
+    final hintColor = theme.hintColor;
+
     return SafeArea(
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header Pengguna dengan kemampuan stretch
-            _buildExpandableUserHeader(primaryColor),
+            _buildExpandableUserHeader(primaryColor!),
             const SizedBox(height: 24),
 
             // Bahagian Quick Action
-            _buildQuickActions(primaryColor),
+            _buildQuickActions(primaryColor!, cardColor, textColor),
             const SizedBox(height: 24),
 
             // Bahagian Berita
-            _buildNewsSection(),
+            _buildNewsSection(textColor),
             const SizedBox(height: 24),
           ],
         ),
@@ -299,6 +347,9 @@ class _HomeContentState extends State<HomeContent> {
 
   // Widget untuk header pengguna yang dapat di-expand
   Widget _buildExpandableUserHeader(Color primaryColor) {
+    final theme = Theme.of(context);
+    final textColor = theme.textTheme.bodyLarge?.color;
+
     return GestureDetector(
       onTap: _toggleHeaderExpansion,
       child: AnimatedContainer(
@@ -431,21 +482,23 @@ class _HomeContentState extends State<HomeContent> {
   // -----------------------------
   // Quick Actions - design with 3 columns (more compact)
   // -----------------------------
-  Widget _buildQuickActions(Color primaryColor) {
+  Widget _buildQuickActions(
+      Color primaryColor, Color cardColor, Color? textColor) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Quick Action",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
           ),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardColor,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
@@ -466,12 +519,14 @@ class _HomeContentState extends State<HomeContent> {
                       _buildSmallActionCompact(
                           SvgPicture.asset("assets/svgs/Learning Hub.svg"),
                           "Learning\nHub",
-                          primaryColor),
+                          primaryColor,
+                          textColor),
                       const SizedBox(height: 20),
                       _buildSmallActionCompact(
                           SvgPicture.asset("assets/svgs/Facilities.svg"),
                           "Facilities\n",
-                          primaryColor),
+                          primaryColor,
+                          textColor),
                       const SizedBox(height: 50),
                     ],
                   ),
@@ -484,14 +539,16 @@ class _HomeContentState extends State<HomeContent> {
                       _buildSmallActionCompact(
                           SvgPicture.asset("assets/svgs/My Document.svg"),
                           "My\nDocument",
-                          primaryColor),
+                          primaryColor,
+                          textColor),
                       const SizedBox(height: 20),
                       _buildCenterJourneyCompact(primaryColor),
                       const SizedBox(height: 20),
                       _buildSmallActionCompact(
                           SvgPicture.asset("assets/svgs/Task Manager.svg"),
                           "Task\nManager",
-                          primaryColor),
+                          primaryColor,
+                          textColor),
                     ],
                   ),
                 ),
@@ -504,12 +561,14 @@ class _HomeContentState extends State<HomeContent> {
                       _buildSmallActionCompact(
                           SvgPicture.asset("assets/svgs/Meet the Team.svg"),
                           "Meet the\nTeam",
-                          primaryColor),
+                          primaryColor,
+                          textColor),
                       const SizedBox(height: 20),
                       _buildSmallActionCompact(
                           SvgPicture.asset("assets/svgs/Buddy Chat.svg"),
                           "Buddy\nChat",
-                          primaryColor),
+                          primaryColor,
+                          textColor),
                       const SizedBox(height: 50),
                     ],
                   ),
@@ -517,13 +576,14 @@ class _HomeContentState extends State<HomeContent> {
               ],
             ),
           ),
-        ],//aa
+        ],
       ),
     );
   }
 
   // Compact small action item
-  Widget _buildSmallActionCompact(Widget icon, String label, Color color) {
+  Widget _buildSmallActionCompact(
+      Widget icon, String label, Color color, Color? textColor) {
     return GestureDetector(
       onTap: () {
         if (label == "Learning\nHub") {
@@ -583,7 +643,7 @@ class _HomeContentState extends State<HomeContent> {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 11),
+            style: TextStyle(fontSize: 11, color: textColor),
           ),
         ],
       ),
@@ -592,6 +652,9 @@ class _HomeContentState extends State<HomeContent> {
 
   // Compact center big circular "My Journey"
   Widget _buildCenterJourneyCompact(Color color) {
+    final theme = Theme.of(context);
+    final bool isDarkMode = theme.brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -607,7 +670,9 @@ class _HomeContentState extends State<HomeContent> {
             height: 120,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color.fromRGBO(245, 245, 247, 1),
+              color: isDarkMode
+                  ? Colors.grey[800]
+                  : const Color.fromRGBO(245, 245, 247, 1),
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.12),
@@ -615,7 +680,9 @@ class _HomeContentState extends State<HomeContent> {
                   offset: const Offset(0, 4),
                 ),
                 BoxShadow(
-                  color: Colors.white.withOpacity(0.18),
+                  color: isDarkMode
+                      ? Colors.black.withOpacity(0.18)
+                      : Colors.white.withOpacity(0.18),
                   blurRadius: 16,
                   offset: const Offset(0, 0),
                   spreadRadius: 2,
@@ -662,36 +729,42 @@ class _HomeContentState extends State<HomeContent> {
   }
 
   // -----------------------------
-  // News section
+  // News section with multiple news items and external links
   // -----------------------------
-  Widget _buildNewsSection() {
-    // List of news items with title, image path, and content
+  Widget _buildNewsSection(Color? textColor) {
+    final theme = Theme.of(context);
+    final bool isDarkMode = theme.brightness == Brightness.dark;
+
+    // Sample news data - replace with your actual news data
     final List<Map<String, String>> newsItems = [
       {
-        "title": "New App Onboard X: Cleaner, easier to use, and faster to navigate.",
-        "image": "assets/images/news1.png",
-        "content": "TNB has launched a new onboarding app for new employees, called Onboard X, which provides a seamless and digital experience for new hires. The app includes features such as digital documentation, task management, and a buddy system. This initiative is part of TNB's digital transformation journey to improve the employee experience from day one."
+        'title':
+            'New App Onboard X: Cleaner, easier to use, and faster to navigate.',
+        'image': 'assets/images/background_news.jpeg',
+        'url': 'https://asean.bernama.com/news.php?id=2468953',
       },
       {
-        "title": "TNB introduces new smart meters to improve energy efficiency.",
-        "image": "assets/images/news2.png",
-        "content": "Tenaga Nasional Berhad (TNB) has announced the rollout of new smart meters across Malaysia. These meters will allow customers to monitor their energy usage in real-time and help in reducing energy consumption. The smart meters are part of TNB's commitment to sustainability and providing innovative solutions to its customers."
+        'title': 'Latest Developments in Technology Sector',
+        'image': 'assets/images/background_news.jpeg',
+        'url': 'https://theedgemalaysia.com/node/770755',
       },
       {
-        "title": "Digital transformation in Malaysia: How Onboard X leads the way.",
-        "image": "assets/images/news3.png",
-        "content": "As part of its digital transformation journey, TNB has introduced Onboard X, setting a new standard for employee onboarding in Malaysia. The app leverages cutting-edge technology to simplify the onboarding process, making it more efficient and engaging for new hires. This initiative demonstrates TNB's commitment to innovation and employee satisfaction."
+        'title': 'Market Trends and Financial Updates',
+        'image': 'assets/images/background_news.jpeg',
+        'url': 'https://finance.yahoo.com/quote/5347.KL/news/',
       },
+      // Add more news items as needed
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
             "News",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 20, fontWeight: FontWeight.bold, color: textColor),
           ),
         ),
         const SizedBox(height: 16),
@@ -704,34 +777,27 @@ class _HomeContentState extends State<HomeContent> {
             itemBuilder: (context, index) {
               final news = newsItems[index];
               return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => News1(
-                        title: news["title"]!,
-                        image: news["image"]!,
-                        content: news["content"]!,
-                      ),
-                    ),
-                  );
-                },
+                onTap: () => _launchURL(news['url']!),
                 child: Container(
                   width: 300,
                   margin: const EdgeInsets.only(right: 16),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
-                    image: DecorationImage(
-                      image: AssetImage(news["image"]!),
+                    image: const DecorationImage(
+                      image: AssetImage('assets/images/background_news.jpeg'),
                       fit: BoxFit.cover,
+                      colorFilter: ColorFilter.mode(
+                        Colors.black54,
+                        BlendMode.darken,
+                      ),
                     ),
                   ),
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [
-                          Colors.black.withOpacity(0.7),
+                          Colors.black87,
                           Colors.transparent
                         ],
                         begin: Alignment.bottomCenter,
@@ -743,7 +809,7 @@ class _HomeContentState extends State<HomeContent> {
                       child: Padding(
                         padding: const EdgeInsets.all(12.0),
                         child: Text(
-                          news["title"]!,
+                          news['title']!,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
