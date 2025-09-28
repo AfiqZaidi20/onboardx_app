@@ -1,5 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:onboardx_app/screens/facilities/benefits.dart';
+import 'package:onboardx_app/screens/facilities/canteen.dart';
+import 'package:onboardx_app/screens/facilities/office.dart';
+import 'package:onboardx_app/screens/facilities/parking.dart';
 
 class PerksFacilitiesScreen extends StatefulWidget {
   const PerksFacilitiesScreen({super.key});
@@ -107,6 +111,29 @@ class _PerksFacilitiesScreenState extends State<PerksFacilitiesScreen> {
                               builder: (context) => const BenifitsPage(),
                             ),
                           );
+                        }
+                        else if (perksList[index]["title"] ==
+                            "Your Office’s Location") {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const OfficePage(),
+                            ),
+                          );
+                        }
+                        else if (perksList[index]["title"] ==
+                            "Canteen Menu") {
+                              Navigator.push(context, 
+                              MaterialPageRoute(builder: (context) => const CanteenPage(),),
+                              );
+                          // Implement navigation to Canteen Menu page
+                        }
+                        else if (perksList[index]["title"] ==
+                            "Parking Info") {
+                              Navigator.push(context, 
+                              MaterialPageRoute(builder: (context) => const ParkingPage(),),
+                              );
+                          // Implement navigation to Parking Info page
                         }
                       },
                       child: Container(

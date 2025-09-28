@@ -59,8 +59,8 @@ class _AppBarMyJourneyState extends State<AppBarMyJourney> with SingleTickerProv
         ),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: Colors.blue,
-          labelColor: Colors.blue,
+          indicatorColor: const Color.fromRGBO(224, 124, 124, 1),
+          labelColor: const Color.fromRGBO(224, 124, 124, 1),
           unselectedLabelColor: Colors.grey,
           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
           tabs: const [

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+
 // alias mobile_scanner sebagai ms untuk elakkan konflik nama Phone/Email dll
 import 'package:mobile_scanner/mobile_scanner.dart' as ms;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+
 // alias flutter_contacts sebagai fc
 import 'package:flutter_contacts/flutter_contacts.dart' as fc;
 
@@ -413,17 +416,6 @@ class _ScanQrScreenState extends State<ScanQrScreen>
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          // Optional: quick button to save vCard directly to phone using flutter_contacts
-          if (_qrAsVCard)
-            ElevatedButton.icon(
-              onPressed: () async {
-                // direkt insert to contacts (same as Save to Phone)
-                await _saveContactToPhone(_currentUserData!);
-              },
-              icon: const Icon(Icons.save),
-              label: const Text('Save vCard to Phone'),
-            ),
           const SizedBox(height: 20),
           Card(
             child: Padding(

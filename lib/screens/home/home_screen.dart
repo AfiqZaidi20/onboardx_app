@@ -5,6 +5,7 @@ import 'package:onboardx_app/screens/auth/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:onboardx_app/screens/document/document_manager_screen.dart';
+import 'package:onboardx_app/screens/facilities/perks_facilities_screen.dart';
 import 'package:onboardx_app/screens/learninghub/learning_hub_screen.dart';
 import 'package:onboardx_app/screens/meettheteam/meet_the_team_screen.dart';
 import 'package:onboardx_app/screens/myjourney/appbar_my_journey.dart';
@@ -598,7 +599,7 @@ class _HomeContentState extends State<HomeContent> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const TimelineScreen(),
+              builder: (context) => const PerksFacilitiesScreen(),
             ),
           );
         }
@@ -740,17 +741,17 @@ class _HomeContentState extends State<HomeContent> {
       {
         'title':
             'New App Onboard X: Cleaner, easier to use, and faster to navigate.',
-        'image': 'assets/images/background_news.jpeg',
+        'image': 'assets/images/news1.png',
         'url': 'https://asean.bernama.com/news.php?id=2468953',
       },
       {
         'title': 'Latest Developments in Technology Sector',
-        'image': 'assets/images/background_news.jpeg',
+        'image': 'assets/images/news2.png',
         'url': 'https://theedgemalaysia.com/node/770755',
       },
       {
         'title': 'Market Trends and Financial Updates',
-        'image': 'assets/images/background_news.jpeg',
+        'image': 'assets/images/news3.png',
         'url': 'https://finance.yahoo.com/quote/5347.KL/news/',
       },
       // Add more news items as needed
