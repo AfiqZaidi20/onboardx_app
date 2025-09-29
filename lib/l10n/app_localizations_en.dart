@@ -58,4 +58,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get somethingWentWrong => 'Something went wrong!';
+
+  @override
+  String get quickaction => 'Quick Action';
+
+  @override
+  String get hello => 'Hello,';
+
+  @override
+  String get mydocument => 'My\nDocument';
+
+  @override
+  String get meettheteam => 'Meet\nThe Team';
+
+  @override
+  String get buddychat => 'Buddy Chat';
+
+  @override
+  String get taskmanager => 'Task Manager';
+
+  @override
+  String get facilities => 'Facilities';
+
+  @override
+  String get learninghub => 'Learning Hub';
+
+  @override
+  String get myjourney => 'My\nJourney';
+
+  @override
+  String get news => 'News';
+
+  @override
+  String get scanqr => 'Scan QR';
+
+  @override
+  String get myqr => 'My QR';
+
+  @override
+  String get workinformation => 'Work Information';
+
+  @override
+  String get position => 'Position';
+
+  @override
+  String get workplace => 'Workplace';
+
+  @override
+  String get scanthisQRcodeapptoaddmeasacontactinapp => 'Scan this QR code (app) to add me as a contact in-app';
+
+  @override
+  String get thisQRcontainsavCardphonecamerasGoogleLenscanofferAddcontact => 'This QR contains a vCard — phone cameras/Google Lens can offer (Add contact)';
+
+  @override
+  String get usevCardQRphonecameras => 'Use vCard QR(Phone Camera)';
+
+  @override
+  String get sortbyNameAZ => 'Sort Name (A-Z)';
+
+  @override
+  String get createNewFolder => 'Create New Folder';
+
+  @override
+  String get addNewFile => 'Add New File';
+
+  @override
+  String get organizationChart => 'Organization Chart';
+
+  @override
+  String get departmentStructure => 'Department Structure';
 }

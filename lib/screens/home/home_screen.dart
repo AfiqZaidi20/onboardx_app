@@ -1,6 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 import 'package:onboardx_app/screens/auth/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -427,8 +428,8 @@ class _HomeContentState extends State<HomeContent> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            "Hello,",
+                          Text(
+                            (AppLocalizations.of(context)!.hello),
                             style: TextStyle(fontSize: 18, color: Colors.white),
                           ),
                           Text(
@@ -491,7 +492,7 @@ class _HomeContentState extends State<HomeContent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Quick Action",
+            (AppLocalizations.of(context)!.quickaction),
             style: TextStyle(
                 fontSize: 18, fontWeight: FontWeight.bold, color: textColor),
           ),
@@ -519,13 +520,13 @@ class _HomeContentState extends State<HomeContent> {
                       const SizedBox(height: 50),
                       _buildSmallActionCompact(
                           SvgPicture.asset("assets/svgs/Learning Hub.svg"),
-                          "Learning\nHub",
+                          (AppLocalizations.of(context)!.learninghub),
                           primaryColor,
                           textColor),
                       const SizedBox(height: 20),
                       _buildSmallActionCompact(
                           SvgPicture.asset("assets/svgs/Facilities.svg"),
-                          "Facilities\n",
+                          (AppLocalizations.of(context)!.facilities),
                           primaryColor,
                           textColor),
                       const SizedBox(height: 50),
@@ -539,7 +540,7 @@ class _HomeContentState extends State<HomeContent> {
                     children: [
                       _buildSmallActionCompact(
                           SvgPicture.asset("assets/svgs/My Document.svg"),
-                          "My\nDocument",
+                          (AppLocalizations.of(context)!.mydocument),
                           primaryColor,
                           textColor),
                       const SizedBox(height: 20),
@@ -547,7 +548,7 @@ class _HomeContentState extends State<HomeContent> {
                       const SizedBox(height: 20),
                       _buildSmallActionCompact(
                           SvgPicture.asset("assets/svgs/Task Manager.svg"),
-                          "Task\nManager",
+                          (AppLocalizations.of(context)!.taskmanager),
                           primaryColor,
                           textColor),
                     ],
@@ -561,13 +562,13 @@ class _HomeContentState extends State<HomeContent> {
                       const SizedBox(height: 50),
                       _buildSmallActionCompact(
                           SvgPicture.asset("assets/svgs/Meet the Team.svg"),
-                          "Meet the\nTeam",
+                          (AppLocalizations.of(context)!.meettheteam),
                           primaryColor,
                           textColor),
                       const SizedBox(height: 20),
                       _buildSmallActionCompact(
                           SvgPicture.asset("assets/svgs/Buddy Chat.svg"),
-                          "Buddy\nChat",
+                          (AppLocalizations.of(context)!.buddychat),
                           primaryColor,
                           textColor),
                       const SizedBox(height: 50),
@@ -587,7 +588,7 @@ class _HomeContentState extends State<HomeContent> {
       Widget icon, String label, Color color, Color? textColor) {
     return GestureDetector(
       onTap: () {
-        if (label == "Learning\nHub") {
+        if (label == (AppLocalizations.of(context)!.learninghub)) {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -595,7 +596,7 @@ class _HomeContentState extends State<HomeContent> {
             ),
           );
         }
-        if (label == "Facilities\n") {
+        if (label == (AppLocalizations.of(context)!.facilities)) {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -603,7 +604,7 @@ class _HomeContentState extends State<HomeContent> {
             ),
           );
         }
-        if (label == "My\nDocument") {
+        if (label == (AppLocalizations.of(context)!.mydocument)) {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -611,7 +612,7 @@ class _HomeContentState extends State<HomeContent> {
             ),
           );
         }
-        if (label == "Task\nManager") {
+        if (label == (AppLocalizations.of(context)!.taskmanager)) {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -619,7 +620,7 @@ class _HomeContentState extends State<HomeContent> {
             ),
           );
         }
-        if (label == "Meet the\nTeam") {
+        if (label == (AppLocalizations.of(context)!.meettheteam)) {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -627,7 +628,7 @@ class _HomeContentState extends State<HomeContent> {
             ),
           );
         }
-        if (label == "Buddy\nChat") {
+        if (label == (AppLocalizations.of(context)!.buddychat)) {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -705,13 +706,13 @@ class _HomeContentState extends State<HomeContent> {
                     ),
                   ],
                 ),
-                child: const Center(
+                child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.flag, size: 60, color: Colors.white),
                       Text(
-                        "My\nJourney",
+                        (AppLocalizations.of(context)!.myjourney),
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 10,
@@ -763,7 +764,7 @@ class _HomeContentState extends State<HomeContent> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
-            "News",
+            (AppLocalizations.of(context)!.news),
             style: TextStyle(
                 fontSize: 20, fontWeight: FontWeight.bold, color: textColor),
           ),

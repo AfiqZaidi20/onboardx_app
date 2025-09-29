@@ -196,6 +196,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong!'**
   String get somethingWentWrong;
+
+  /// No description provided for @quickaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Action'**
+  String get quickaction;
+
+  /// No description provided for @hello.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello,'**
+  String get hello;
+
+  /// No description provided for @mydocument.
+  ///
+  /// In en, this message translates to:
+  /// **'My\nDocument'**
+  String get mydocument;
+
+  /// No description provided for @meettheteam.
+  ///
+  /// In en, this message translates to:
+  /// **'Meet\nThe Team'**
+  String get meettheteam;
+
+  /// No description provided for @buddychat.
+  ///
+  /// In en, this message translates to:
+  /// **'Buddy Chat'**
+  String get buddychat;
+
+  /// No description provided for @taskmanager.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Manager'**
+  String get taskmanager;
+
+  /// No description provided for @facilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Facilities'**
+  String get facilities;
+
+  /// No description provided for @learninghub.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning Hub'**
+  String get learninghub;
+
+  /// No description provided for @myjourney.
+  ///
+  /// In en, this message translates to:
+  /// **'My\nJourney'**
+  String get myjourney;
+
+  /// No description provided for @news.
+  ///
+  /// In en, this message translates to:
+  /// **'News'**
+  String get news;
+
+  /// No description provided for @scanqr.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan QR'**
+  String get scanqr;
+
+  /// No description provided for @myqr.
+  ///
+  /// In en, this message translates to:
+  /// **'My QR'**
+  String get myqr;
+
+  /// No description provided for @workinformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Work Information'**
+  String get workinformation;
+
+  /// No description provided for @position.
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get position;
+
+  /// No description provided for @workplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Workplace'**
+  String get workplace;
+
+  /// No description provided for @scanthisQRcodeapptoaddmeasacontactinapp.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan this QR code (app) to add me as a contact in-app'**
+  String get scanthisQRcodeapptoaddmeasacontactinapp;
+
+  /// No description provided for @thisQRcontainsavCardphonecamerasGoogleLenscanofferAddcontact.
+  ///
+  /// In en, this message translates to:
+  /// **'This QR contains a vCard — phone cameras/Google Lens can offer (Add contact)'**
+  String get thisQRcontainsavCardphonecamerasGoogleLenscanofferAddcontact;
+
+  /// No description provided for @usevCardQRphonecameras.
+  ///
+  /// In en, this message translates to:
+  /// **'Use vCard QR(Phone Camera)'**
+  String get usevCardQRphonecameras;
+
+  /// No description provided for @sortbyNameAZ.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort Name (A-Z)'**
+  String get sortbyNameAZ;
+
+  /// No description provided for @createNewFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Create New Folder'**
+  String get createNewFolder;
+
+  /// No description provided for @addNewFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New File'**
+  String get addNewFile;
+
+  /// No description provided for @organizationChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Organization Chart'**
+  String get organizationChart;
+
+  /// No description provided for @departmentStructure.
+  ///
+  /// In en, this message translates to:
+  /// **'Department Structure'**
+  String get departmentStructure;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

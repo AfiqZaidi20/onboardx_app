@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:dio/dio.dart';
 
@@ -319,7 +320,7 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
     final Color textColor = Theme.of(context).colorScheme.onBackground;
     final Color hintColor = isDarkMode ? Colors.grey[400]! : Colors.grey[600]!;
     
-    final bool isRoot = _currentPath == 'My Document';
+    final bool isRoot = _currentPath == (AppLocalizations.of(context)!.mydocument);
     return Scaffold(
       backgroundColor: scaffoldBackground,
       appBar: AppBar(
@@ -345,7 +346,7 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                 PopupMenuItem<String>(
                   value: 'sort',
-                  child: Text('Sort by Name (A-Z)', style: TextStyle(color: textColor)),
+                  child: Text((AppLocalizations.of(context)!.sortbyNameAZ), style: TextStyle(color: textColor)),
                 ),
               ],
             ),
@@ -400,7 +401,7 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: isRoot ? _createFolder : _addFileToCurrentFolder,
         child: Icon(isRoot ? Icons.create_new_folder : Icons.add),
-        tooltip: isRoot ? 'Create New Folder' : 'Add New File',
+        tooltip: isRoot ? (AppLocalizations.of(context)!.createNewFolder) : (AppLocalizations.of(context)!.addNewFile),
       ),
     );
   }

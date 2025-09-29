@@ -5,6 +5,7 @@ import 'package:mobile_scanner/mobile_scanner.dart' as ms;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -388,15 +389,15 @@ class _ScanQrScreenState extends State<ScanQrScreen>
                   const SizedBox(height: 16),
                   Text(
                     _qrAsVCard
-                        ? 'This QR contains a vCard — phone cameras/Google Lens can offer "Add contact".'
-                        : 'Scan this QR code (app) to add me as a contact in-app',
+                        ? (AppLocalizations.of(context)!.scanthisQRcodeapptoaddmeasacontactinapp)
+                        : (AppLocalizations.of(context)!.thisQRcontainsavCardphonecamerasGoogleLenscanofferAddcontact),
                     style: Theme.of(context).textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
                   if (uid.isNotEmpty && !_qrAsVCard)
                     Text(
-                      'User ID: ${uid.substring(0, 8)}...',
+                      '',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                 ],
@@ -408,7 +409,7 @@ class _ScanQrScreenState extends State<ScanQrScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text('Use vCard QR (phone cameras)'),
+              Text((AppLocalizations.of(context)!.usevCardQRphonecameras)),
               const SizedBox(width: 8),
               Switch(
                 value: _qrAsVCard,
@@ -419,18 +420,18 @@ class _ScanQrScreenState extends State<ScanQrScreen>
           const SizedBox(height: 20),
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding:  EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Work Information',
+                    (AppLocalizations.of(context)!.workinformation),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
-                  _buildInfoRow('Type', _currentUserData!['workType']),
+                  _buildInfoRow((AppLocalizations.of(context)!.position), _currentUserData!['workType']),
                   _buildInfoRow('Unit', _currentUserData!['workUnit']),
-                  _buildInfoRow('Workplace', _currentUserData!['workplace']),
+                  _buildInfoRow((AppLocalizations.of(context)!.workplace), _currentUserData!['workplace']),
                 ],
               ),
             ),
@@ -482,9 +483,9 @@ class _ScanQrScreenState extends State<ScanQrScreen>
           labelColor: primaryColor,
           unselectedLabelColor: hintColor,
           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-          tabs: const [
-            Tab(icon: Icon(Icons.qr_code_scanner), text: 'Scan QR'),
-            Tab(icon: Icon(Icons.person), text: 'My QR'),
+          tabs:  [
+            Tab(icon: Icon(Icons.qr_code_scanner), text: (AppLocalizations.of(context)!.scanqr),),
+            Tab(icon: Icon(Icons.person), text: (AppLocalizations.of(context)!.myqr),),
           ],
         ),
       ),

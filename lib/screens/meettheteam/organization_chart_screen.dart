@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 
 class OrganizationChartScreen extends StatefulWidget {
   const OrganizationChartScreen({super.key});
@@ -60,7 +61,7 @@ class _OrganizationChartScreenState extends State<OrganizationChartScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Organization Chart',
+          (AppLocalizations.of(context)!.organizationChart),
           style: TextStyle(
             color: textColor,
             fontWeight: FontWeight.w600,
@@ -155,7 +156,7 @@ class _OrganizationChartScreenState extends State<OrganizationChartScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                'Department Structure',
+                (AppLocalizations.of(context)!.departmentStructure),
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
