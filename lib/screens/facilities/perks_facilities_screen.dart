@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 import 'package:onboardx_app/screens/facilities/benefits.dart';
 import 'package:onboardx_app/screens/facilities/canteen.dart';
 import 'package:onboardx_app/screens/facilities/office.dart';
@@ -39,8 +40,8 @@ class _PerksFacilitiesScreenState extends State<PerksFacilitiesScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title: const Text(
-          'Perks & Facilities',
+        title: Text(
+          (AppLocalizations.of(context)!.perksandfacilities),
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
@@ -78,7 +79,7 @@ class _PerksFacilitiesScreenState extends State<PerksFacilitiesScreen> {
               TextField(
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search),
-                  hintText: "Search",
+                  hintText: (AppLocalizations.of(context)!.search),
                   filled: true,
                   fillColor: Colors.grey[300],
                   contentPadding: const EdgeInsets.symmetric(vertical: 0),

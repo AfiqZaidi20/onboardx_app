@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 import 'package:open_filex/open_filex.dart'; // Import the package
 import 'dart:io' as io;
 
@@ -17,7 +18,7 @@ class TaskManagerScreen extends StatelessWidget {
       backgroundColor: scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'Task Manager',
+          (AppLocalizations.of(context)!.taskmanager1),
           style: TextStyle(color: textColor),
         ),
         centerTitle: true,
@@ -52,7 +53,7 @@ class TaskManagerScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Required Documents',
+              (AppLocalizations.of(context)!.requiredDocuments),
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: textColor,
@@ -61,25 +62,25 @@ class TaskManagerScreen extends StatelessWidget {
             const SizedBox(height: 16),
             DocumentCard(
               title: 'Lampiran A',
-              subtitle: 'Upload the required files',
+              subtitle: (AppLocalizations.of(context)!.uploadtherequiredfiles),
               subtitleColor: hintColor,
             ),
             const SizedBox(height: 12),
             DocumentCard(
               title: 'Sijil Tanggung Diri',
-              subtitle: 'Upload the required files',
+              subtitle: (AppLocalizations.of(context)!.uploadtherequiredfiles),
               subtitleColor: hintColor,
             ),
             const SizedBox(height: 12),
             DocumentCard(
               title: 'Penyata Bank',
-              subtitle: 'Upload the required files',
+              subtitle: (AppLocalizations.of(context)!.uploadtherequiredfiles),
               subtitleColor: hintColor,
             ),
             const SizedBox(height: 32),
             // Private Details and Certs Section
             Text(
-              'Private Details and Certs',
+              (AppLocalizations.of(context)!.privateDetailsandCerts),
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: textColor,
@@ -88,19 +89,19 @@ class TaskManagerScreen extends StatelessWidget {
             const SizedBox(height: 16),
             DocumentCard(
               title: 'Identity Card (IC)',
-              subtitle: 'Upload Required',
+              subtitle: (AppLocalizations.of(context)!.uploadRequired),
               subtitleColor: hintColor,
             ),
             const SizedBox(height: 12),
             DocumentCard(
               title: 'Driving License',
-              subtitle: 'Optional',
+              subtitle: (AppLocalizations.of(context)!.optional),
               subtitleColor: hintColor,
             ),
             const SizedBox(height: 12),
             DocumentCard(
               title: 'Certificates',
-              subtitle: 'Optional',
+              subtitle: (AppLocalizations.of(context)!.optional),
               subtitleColor: hintColor,
             ),
           ],
@@ -368,7 +369,7 @@ class _DocumentCardState extends State<DocumentCard> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     visualDensity: VisualDensity.compact,
                   ),
-                  child: Text('Upload', style: TextStyle(fontSize: 13, color: hintColor)),
+                  child: Text((AppLocalizations.of(context)!.upload), style: TextStyle(fontSize: 13, color: hintColor)),
                 ),
               ),
           ],

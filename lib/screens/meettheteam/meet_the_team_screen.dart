@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 import 'package:onboardx_app/screens/meettheteam/organization_chart_screen.dart';
 import 'package:onboardx_app/screens/meettheteam/user_profile_detail_screen.dart';
 
@@ -127,7 +128,7 @@ class _MeetTheTeamScreenState extends State<MeetTheTeamScreen> {
       backgroundColor: scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'Meet The Team',
+          (AppLocalizations.of(context)!.meettheteam),
           style: TextStyle(color: textColor),
         ),
         centerTitle: true,
@@ -167,7 +168,7 @@ class _MeetTheTeamScreenState extends State<MeetTheTeamScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  'Department Directory',
+                  (AppLocalizations.of(context)!.departmentDirectory),
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -210,7 +211,7 @@ class _MeetTheTeamScreenState extends State<MeetTheTeamScreen> {
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
-                hintText: 'Search Now...',
+                hintText: (AppLocalizations.of(context)!.searchNow),
                 hintStyle: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                 prefixIcon: Icon(Icons.search, color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                 border: OutlineInputBorder(

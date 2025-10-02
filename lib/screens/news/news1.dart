@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class News1 extends StatelessWidget {
@@ -24,7 +25,7 @@ class News1 extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("News"),
+        title: Text((AppLocalizations.of(context)!.news)),
         backgroundColor: const Color.fromRGBO(224, 124, 124, 1),
       ),
       body: SingleChildScrollView(

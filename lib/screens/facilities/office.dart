@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OfficePage extends StatelessWidget {
@@ -31,8 +32,8 @@ class OfficePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    "Perks &\nFacilities",
+                  Text(
+                    (AppLocalizations.of(context)!.perksandfacilities),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -75,11 +76,11 @@ class OfficePage extends StatelessWidget {
                   child: Container(
                     color: Colors.white.withOpacity(0.9),
                     padding: const EdgeInsets.all(16),
-                    child: const Column(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Office Facilities',
+                          (AppLocalizations.of(context)!.officeFacilities),
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -109,8 +110,8 @@ class OfficePage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Office Location Header
-                      const Text(
-                        'Office Location',
+                      Text(
+                        (AppLocalizations.of(context)!.officelocation),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -165,8 +166,8 @@ class OfficePage extends StatelessWidget {
                       const SizedBox(height: 24),
                       
                       // Map Section
-                      const Text(
-                        'Map',
+                      Text(
+                        (AppLocalizations.of(context)!.map),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -198,7 +199,7 @@ class OfficePage extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Interactive Map',
+                                    (AppLocalizations.of(context)!.interactiveMap),
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: Colors.grey[600],
@@ -206,7 +207,7 @@ class OfficePage extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Tap to open in Maps',
+                                    (AppLocalizations.of(context)!.tapToOpenInMaps),
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey[500],
@@ -240,7 +241,7 @@ class OfficePage extends StatelessWidget {
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.directions, size: 20),
-                          label: const Text('Get Directions'),
+                          label: Text((AppLocalizations.of(context)!.getDirections)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red[400],
                             foregroundColor: Colors.white,
@@ -275,7 +276,7 @@ class OfficePage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text((AppLocalizations.of(context)!.cancel)),
           ),
           TextButton(
             onPressed: () {
@@ -289,7 +290,7 @@ class OfficePage extends StatelessWidget {
                 ),
               );
             },
-            child: const Text('Open'),
+            child: Text((AppLocalizations.of(context)!.open)),
           ),
         ],
       ),

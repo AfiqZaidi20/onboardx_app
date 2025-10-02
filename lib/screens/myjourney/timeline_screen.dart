@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -439,7 +440,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
         return StatefulBuilder(builder: (context, setState) {
           return AlertDialog(
             backgroundColor: isDarkMode ? Colors.grey[900] : Colors.white,
-            title: Text('Add New Event', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+            title: Text((AppLocalizations.of(context)!.addNewEvent), style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -448,7 +449,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                     controller: _titleController,
                     style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
                     decoration: InputDecoration(
-                      labelText: 'Title *',
+                      labelText: (AppLocalizations.of(context)!.title),
                       labelStyle: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[700]),
                       border: const OutlineInputBorder(),
                       enabledBorder: OutlineInputBorder(
@@ -496,7 +497,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                           readOnly: true,
                           style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
                           decoration: InputDecoration(
-                            labelText: 'Start Time *',
+                            labelText: (AppLocalizations.of(context)!.startTime),
                             labelStyle: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[700]),
                             border: const OutlineInputBorder(),
                             enabledBorder: OutlineInputBorder(
@@ -527,7 +528,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                           readOnly: true,
                           style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
                           decoration: InputDecoration(
-                            labelText: 'End Time *',
+                            labelText: (AppLocalizations.of(context)!.endTime),
                             labelStyle: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[700]),
                             border: const OutlineInputBorder(),
                             enabledBorder: OutlineInputBorder(
@@ -558,7 +559,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                     controller: _locationController,
                     style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
                     decoration: InputDecoration(
-                      labelText: 'Location (optional)',
+                      labelText: (AppLocalizations.of(context)!.locationoptional),
                       labelStyle: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[700]),
                       border: const OutlineInputBorder(),
                       enabledBorder: OutlineInputBorder(
@@ -575,7 +576,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                     style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
                     maxLines: 3,
                     decoration: InputDecoration(
-                      labelText: 'Description (optional)',
+                      labelText: (AppLocalizations.of(context)!.descriptionoptional),
                       labelStyle: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[700]),
                       border: const OutlineInputBorder(),
                       enabledBorder: OutlineInputBorder(
@@ -591,7 +592,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                     controller: _linkController,
                     style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
                     decoration: InputDecoration(
-                      labelText: 'Link (optional)',
+                      labelText: (AppLocalizations.of(context)!.linkoptional),
                       labelStyle: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[700]),
                       hintText: 'https://example.com',
                       border: const OutlineInputBorder(),
@@ -609,7 +610,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context), 
-                child: Text('Cancel', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black))
+                child: Text((AppLocalizations.of(context)!.cancel), style: TextStyle(color: isDarkMode ? Colors.white : Colors.black))
               ),
               ElevatedButton(
                 onPressed: () async {
@@ -648,7 +649,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Title required & must be logged in')));
                   }
                 },
-                child: const Text('Add Event'),
+                child: Text((AppLocalizations.of(context)!.addEvent)),
               ),
             ],
           );
@@ -828,7 +829,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text(formattedDate, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: isDarkMode ? Colors.white : Colors.black)),
               if (_isToday(_selectedDate!))
-                Text('Today', style: TextStyle(fontSize: 14, color: Colors.blue[700], fontWeight: FontWeight.bold)),
+                Text((AppLocalizations.of(context)!.today), style: TextStyle(fontSize: 14, color: Colors.blue[700], fontWeight: FontWeight.bold)),
             ]),
           ),
 

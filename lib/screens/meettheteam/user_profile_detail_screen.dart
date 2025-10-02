@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UserProfileDetailScreen extends StatelessWidget {
@@ -58,7 +59,7 @@ class UserProfileDetailScreen extends StatelessWidget {
       backgroundColor: scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'Meet The Team',
+          (AppLocalizations.of(context)!.meettheteam),
           style: TextStyle(color: textColor),
         ),
         centerTitle: true,
@@ -117,7 +118,7 @@ class UserProfileDetailScreen extends StatelessWidget {
             
             // Name Section
             _buildProfileSection(
-              title: 'Name',
+              title: (AppLocalizations.of(context)!.name),
               content: 'Datuk Ir. Megat Jalaluddin Bin Megat Hassan',
               isDarkMode: isDarkMode,
               textColor: textColor,
@@ -125,7 +126,7 @@ class UserProfileDetailScreen extends StatelessWidget {
             
             // Position Section
             _buildProfileSection(
-              title: 'Position',
+              title:(AppLocalizations.of(context)!.position),
               content: 'President/Ketua Pegawai Eksekutif (CEO)',
               isDarkMode: isDarkMode,
               textColor: textColor,
@@ -142,7 +143,7 @@ class UserProfileDetailScreen extends StatelessWidget {
             
             // Phone Section
             _buildPhoneSection(
-              title: 'Phone',
+              title: (AppLocalizations.of(context)!.phoneno),
               content: '+60 00000000000',
               isDarkMode: isDarkMode,
               textColor: textColor,

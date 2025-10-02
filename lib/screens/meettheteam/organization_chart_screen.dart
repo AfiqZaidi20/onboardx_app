@@ -213,7 +213,7 @@ class _OrganizationChartScreenState extends State<OrganizationChartScreen> {
                           controller: _searchCtr,
                           style: TextStyle(color: textColor),
                           decoration: InputDecoration(
-                            hintText: 'Search name or position...',
+                            hintText: (AppLocalizations.of(context)!.searchnameorposition),
                             border: InputBorder.none,
                             hintStyle: TextStyle(color: hintColor),
                           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 
 class BenifitsPage extends StatelessWidget {
   const BenifitsPage({Key? key}) : super(key: key);
@@ -31,8 +32,8 @@ class BenifitsPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    "Perks &\nFacilities",
+                  Text(
+                    (AppLocalizations.of(context)!.perksandfacilities),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -62,9 +63,9 @@ class BenifitsPage extends StatelessWidget {
                     padding: const EdgeInsets.all(12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
-                          'Benefits Overview',
+                          (AppLocalizations.of(context)!.benefitsOverview1),
                           style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

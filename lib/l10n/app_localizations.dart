@@ -334,6 +334,378 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Department Structure'**
   String get departmentStructure;
+
+  /// No description provided for @departmentDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'Department Directory'**
+  String get departmentDirectory;
+
+  /// No description provided for @searchNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Now...'**
+  String get searchNow;
+
+  /// No description provided for @searchnameorposition.
+  ///
+  /// In en, this message translates to:
+  /// **'Seacrh name or position...'**
+  String get searchnameorposition;
+
+  /// No description provided for @userProfileDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'User Profile Detail'**
+  String get userProfileDetail;
+
+  /// No description provided for @name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// No description provided for @phoneno.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone No.'**
+  String get phoneno;
+
+  /// No description provided for @timeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Timeline'**
+  String get timeline;
+
+  /// No description provided for @checklist.
+  ///
+  /// In en, this message translates to:
+  /// **'Checklist'**
+  String get checklist;
+
+  /// No description provided for @addNewEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Event'**
+  String get addNewEvent;
+
+  /// No description provided for @title.
+  ///
+  /// In en, this message translates to:
+  /// **'Title *'**
+  String get title;
+
+  /// No description provided for @startTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Time *'**
+  String get startTime;
+
+  /// No description provided for @endTime.
+  ///
+  /// In en, this message translates to:
+  /// **'End Time *'**
+  String get endTime;
+
+  /// No description provided for @locationoptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Location (optional)'**
+  String get locationoptional;
+
+  /// No description provided for @descriptionoptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (optional)'**
+  String get descriptionoptional;
+
+  /// No description provided for @linkoptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Link (optional)'**
+  String get linkoptional;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @addEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Event'**
+  String get addEvent;
+
+  /// No description provided for @addNewTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Task'**
+  String get addNewTask;
+
+  /// No description provided for @createNewProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Create New Project'**
+  String get createNewProject;
+
+  /// No description provided for @projectTittle.
+  ///
+  /// In en, this message translates to:
+  /// **'Project Tittle *'**
+  String get projectTittle;
+
+  /// No description provided for @createProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Project'**
+  String get createProject;
+
+  /// No description provided for @pleasecreateaprojectfirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Please create project first'**
+  String get pleasecreateaprojectfirst;
+
+  /// No description provided for @project.
+  ///
+  /// In en, this message translates to:
+  /// **'Project *'**
+  String get project;
+
+  /// No description provided for @taskTittle.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Tittle *'**
+  String get taskTittle;
+
+  /// No description provided for @dueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Due Date'**
+  String get dueDate;
+
+  /// No description provided for @addTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Task'**
+  String get addTask;
+
+  /// No description provided for @editTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Task'**
+  String get editTask;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get saveChanges;
+
+  /// No description provided for @deleteTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Task'**
+  String get deleteTask;
+
+  /// No description provided for @areyousureyouwanttodeletethistask.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure want to delete this task?'**
+  String get areyousureyouwanttodeletethistask;
+
+  /// No description provided for @deleteProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Project'**
+  String get deleteProject;
+
+  /// No description provided for @areyousureyouwanttodeletethisprojectAlltasksinthisprojectwillalsobedeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this project? All in this project  will also be deleted.'**
+  String get areyousureyouwanttodeletethisprojectAlltasksinthisprojectwillalsobedeleted;
+
+  /// No description provided for @progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get progress;
+
+  /// No description provided for @taskCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Completed'**
+  String get taskCompleted;
+
+  /// No description provided for @taskmanager1.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Manager'**
+  String get taskmanager1;
+
+  /// No description provided for @requiredDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'Required Documents'**
+  String get requiredDocuments;
+
+  /// No description provided for @uploadtherequiredfiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload the required files'**
+  String get uploadtherequiredfiles;
+
+  /// No description provided for @privateDetailsandCerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Private Details and Certs'**
+  String get privateDetailsandCerts;
+
+  /// No description provided for @uploadRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload Required'**
+  String get uploadRequired;
+
+  /// No description provided for @optional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get optional;
+
+  /// No description provided for @upload.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload'**
+  String get upload;
+
+  /// No description provided for @perksandfacilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Perks & Facilities'**
+  String get perksandfacilities;
+
+  /// No description provided for @benefitsOverview1.
+  ///
+  /// In en, this message translates to:
+  /// **'Benefits Overview'**
+  String get benefitsOverview1;
+
+  /// No description provided for @yourofficelocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Office Location'**
+  String get yourofficelocation;
+
+  /// No description provided for @canteenmenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Canteen Menu'**
+  String get canteenmenu;
+
+  /// No description provided for @parkinginformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking Information'**
+  String get parkinginformation;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// No description provided for @officelocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Office Location'**
+  String get officelocation;
+
+  /// No description provided for @map.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get map;
+
+  /// No description provided for @interactiveMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Interactive Map'**
+  String get interactiveMap;
+
+  /// No description provided for @tapToOpenInMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to Open in Maps'**
+  String get tapToOpenInMaps;
+
+  /// No description provided for @getDirections.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Directions'**
+  String get getDirections;
+
+  /// No description provided for @open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get open;
+
+  /// No description provided for @officeFacilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Office Facilities'**
+  String get officeFacilities;
+
+  /// No description provided for @parkingPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking Page'**
+  String get parkingPage;
+
+  /// No description provided for @car.
+  ///
+  /// In en, this message translates to:
+  /// **'Car'**
+  String get car;
+
+  /// No description provided for @motorcycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Motorcycle'**
+  String get motorcycle;
+
+  /// No description provided for @learninghub1.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning Hub'**
+  String get learninghub1;
+
+  /// No description provided for @allLearning.
+  ///
+  /// In en, this message translates to:
+  /// **'All Learning'**
+  String get allLearning;
+
+  /// No description provided for @noCourseFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No Course Found'**
+  String get noCourseFound;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 
 import 'learning_hub_create_screen.dart';
 import 'learning_hub_detail_screen.dart';
@@ -76,7 +77,7 @@ class _LearningHubScreenState extends State<LearningHubScreen> with WidgetsBindi
         backgroundColor: scaffoldBackground,
         appBar: AppBar(
           title: Text(
-            'Learning Hub',
+            (AppLocalizations.of(context)!.learninghub1),
             style: TextStyle(color: textColor),
           ),
           centerTitle: true,
@@ -139,7 +140,7 @@ class _LearningHubScreenState extends State<LearningHubScreen> with WidgetsBindi
                 child: TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'Search Now...',
+                    hintText: (AppLocalizations.of(context)!.searchNow),
                     hintStyle: TextStyle(color: hintColor),
                     prefixIcon: Icon(Icons.search, color: hintColor),
                     border: InputBorder.none,
@@ -316,7 +317,7 @@ class _LearningHubScreenState extends State<LearningHubScreen> with WidgetsBindi
             const SizedBox(height: 24.0),
           ],
           if (allCoursesFiltered.isNotEmpty) ...[
-            _buildSectionHeader('All learning', allCoursesFiltered.length > 2, () {
+            _buildSectionHeader((AppLocalizations.of(context)!.allLearning), allCoursesFiltered.length > 2, () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const LearningHubAllScreen()),

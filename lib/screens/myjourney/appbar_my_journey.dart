@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 import 'timeline_screen.dart';
 import 'checklist_screen.dart';
 
@@ -28,8 +29,8 @@ class _AppBarMyJourneyState extends State<AppBarMyJourney> with SingleTickerProv
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'My Journey',
+        title: Text(
+          (AppLocalizations.of(context)!.myjourney),
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
@@ -63,9 +64,9 @@ class _AppBarMyJourneyState extends State<AppBarMyJourney> with SingleTickerProv
           labelColor: const Color.fromRGBO(224, 124, 124, 1),
           unselectedLabelColor: Colors.grey,
           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-          tabs: const [
-            Tab(text: 'Timeline'),
-            Tab(text: 'Checklist'),
+          tabs: [
+            Tab(text: (AppLocalizations.of(context)!.timeline)), 
+            Tab(text: (AppLocalizations.of(context)!.checklist)), 
           ],
         ),
       ),

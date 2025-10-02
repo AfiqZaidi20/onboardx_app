@@ -69,7 +69,7 @@ class AppLocalizationsMs extends AppLocalizations {
   String get mydocument => 'Dokumen\nSaya';
 
   @override
-  String get meettheteam => 'Team\nPasukan';
+  String get meettheteam => 'Ahli Pasukan';
 
   @override
   String get buddychat => 'Kawan\nBercakap';
@@ -87,7 +87,7 @@ class AppLocalizationsMs extends AppLocalizations {
   String get myjourney => 'Perjalan\nSaya';
 
   @override
-  String get news => 'Kotak Berita';
+  String get news => 'Berita';
 
   @override
   String get scanqr => 'Imbas QR';
@@ -117,14 +117,200 @@ class AppLocalizationsMs extends AppLocalizations {
   String get sortbyNameAZ => 'Urutan Nama (A-Z)';
 
   @override
-  String get createNewFolder => 'Folder Baru';
+  String get createNewFolder => 'Cipta Folder Baru';
 
   @override
-  String get addNewFile => 'Fail Baru';
+  String get addNewFile => 'Tambah Fail Baru';
 
   @override
   String get organizationChart => 'Carta Organisasi';
 
   @override
   String get departmentStructure => 'Struktur Jabatan';
+
+  @override
+  String get departmentDirectory => 'Direktori Jabatan';
+
+  @override
+  String get searchNow => 'Cari Sekarang...';
+
+  @override
+  String get searchnameorposition => 'Cari nama atau jawatan...';
+
+  @override
+  String get userProfileDetail => 'Maklumat Pengguna';
+
+  @override
+  String get name => 'Nama';
+
+  @override
+  String get phoneno => 'No. Telefon';
+
+  @override
+  String get timeline => 'Garis Masa';
+
+  @override
+  String get checklist => 'Senarai Semak';
+
+  @override
+  String get addNewEvent => 'Tambah Acara Baru';
+
+  @override
+  String get title => 'Tajuk *';
+
+  @override
+  String get startTime => 'Masa Bermula *';
+
+  @override
+  String get endTime => 'Tamat Masa *';
+
+  @override
+  String get locationoptional => 'Lokasi (pilihan)';
+
+  @override
+  String get descriptionoptional => 'Penerangan (pilihan)';
+
+  @override
+  String get linkoptional => 'Link (pilihan)';
+
+  @override
+  String get cancel => 'Batal';
+
+  @override
+  String get today => 'Hari Ini';
+
+  @override
+  String get addEvent => 'Tambah Acara';
+
+  @override
+  String get addNewTask => 'Tamnah Tugasan Baru';
+
+  @override
+  String get createNewProject => 'Cipta Projek Baru';
+
+  @override
+  String get projectTittle => 'Tajuk Projek *';
+
+  @override
+  String get createProject => 'Cipta Projek';
+
+  @override
+  String get pleasecreateaprojectfirst => 'Tolong cipta projek terblebih dahulu';
+
+  @override
+  String get project => 'Projek *';
+
+  @override
+  String get taskTittle => 'Tajuk Tugasan *';
+
+  @override
+  String get dueDate => 'Tamat Sebelum';
+
+  @override
+  String get addTask => 'Tambah Tugasan';
+
+  @override
+  String get editTask => 'Ubah Suai Tugasan';
+
+  @override
+  String get delete => 'Hapus';
+
+  @override
+  String get saveChanges => 'Simpan Perubahan';
+
+  @override
+  String get deleteTask => 'Hapus Tugasan';
+
+  @override
+  String get areyousureyouwanttodeletethistask => 'Anda pasti ingin membuang tugasan ini?';
+
+  @override
+  String get deleteProject => 'Hapus Projek';
+
+  @override
+  String get areyousureyouwanttodeletethisprojectAlltasksinthisprojectwillalsobedeleted => 'Anda pasti ingin menghapuskan projek ini? Semua tugasan dalam projek ini akan hapus.';
+
+  @override
+  String get progress => 'Progres';
+
+  @override
+  String get taskCompleted => 'Tugasan Selesai';
+
+  @override
+  String get taskmanager1 => 'Pengurus Tugasan';
+
+  @override
+  String get requiredDocuments => 'Dokumen Diperlukan';
+
+  @override
+  String get uploadtherequiredfiles => 'Muat naik fail yang diperlukan';
+
+  @override
+  String get privateDetailsandCerts => 'Butiran Peribadi dan Sijil';
+
+  @override
+  String get uploadRequired => 'Muat Naik yang Diperlukan';
+
+  @override
+  String get optional => 'Pilihan';
+
+  @override
+  String get upload => 'Muat Naik';
+
+  @override
+  String get perksandfacilities => 'Faedah & Kemudahan';
+
+  @override
+  String get benefitsOverview1 => 'Benefits Overview';
+
+  @override
+  String get yourofficelocation => 'Lokasi Pejabat Anda';
+
+  @override
+  String get canteenmenu => 'Menu Kantin';
+
+  @override
+  String get parkinginformation => 'Maklumat Tempat Letak Kereta';
+
+  @override
+  String get search => 'Cari';
+
+  @override
+  String get officelocation => 'Lokasi Pejabat';
+
+  @override
+  String get map => 'Peta';
+
+  @override
+  String get interactiveMap => 'Peta Interaktif';
+
+  @override
+  String get tapToOpenInMaps => 'Tekan untuk buka dalam Maps';
+
+  @override
+  String get getDirections => 'Dapatkan Arah';
+
+  @override
+  String get open => 'Buka';
+
+  @override
+  String get officeFacilities => 'Kemudahan Pejabat';
+
+  @override
+  String get parkingPage => 'Halaman Tempat Letak Kereta';
+
+  @override
+  String get car => 'Kereta';
+
+  @override
+  String get motorcycle => 'Motosikal';
+
+  @override
+  String get learninghub1 => 'Pusat Pembelajaran';
+
+  @override
+  String get allLearning => 'Semua Pembelajaran';
+
+  @override
+  String get noCourseFound => 'Kursus Tidak Ditemui';
 }

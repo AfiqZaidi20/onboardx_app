@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 
 class CanteenPage extends StatefulWidget {
   const CanteenPage({super.key});
@@ -35,8 +36,8 @@ class _CanteenPage extends State<CanteenPage>
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  "Perks &\nFacilities",
+                Text(
+                  (AppLocalizations.of(context)!.canteenmenu),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

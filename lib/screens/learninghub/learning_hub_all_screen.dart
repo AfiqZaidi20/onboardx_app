@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 
 import 'learning_hub_detail_screen.dart';
 
@@ -48,7 +49,7 @@ class _LearningHubAllScreenState extends State<LearningHubAllScreen> {
       backgroundColor: scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          'Learning Hub',
+          (AppLocalizations.of(context)!.learninghub1),
           style: TextStyle(color: textColor),
         ),
         centerTitle: true,
@@ -89,7 +90,7 @@ class _LearningHubAllScreenState extends State<LearningHubAllScreen> {
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: 'Search Now...',
+                  hintText: (AppLocalizations.of(context)!.searchNow),
                   hintStyle: TextStyle(color: hintColor),
                   prefixIcon: Icon(Icons.search, color: hintColor),
                   border: InputBorder.none,
@@ -106,7 +107,7 @@ class _LearningHubAllScreenState extends State<LearningHubAllScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'All Learning',
+                  (AppLocalizations.of(context)!.allLearning),
                   style: TextStyle(
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,
@@ -235,11 +236,11 @@ class _LearningHubAllScreenState extends State<LearningHubAllScreen> {
 
   Widget _buildCourseList(List<Map<String, dynamic>> courses, Color cardColor, Color textColor) {
     if (courses.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 40.0),
           child: Text(
-            'No courses found',
+            (AppLocalizations.of(context)!.noCourseFound),
             style: TextStyle(fontSize: 18.0, color: Colors.grey),
           ),
         ),

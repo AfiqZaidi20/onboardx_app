@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 import 'package:onboardx_app/screens/facilities/car_parking_screen.dart';
 import 'motor_parking_screen.dart';
 
@@ -28,8 +29,8 @@ class _ParkingPageState extends State<ParkingPage> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Parking Page',
+        title: Text(
+          (AppLocalizations.of(context)!.parkingPage),
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
@@ -111,9 +112,9 @@ class _ParkingPageState extends State<ParkingPage> with SingleTickerProviderStat
             labelColor: const Color.fromRGBO(224, 124, 124, 1),
             unselectedLabelColor: Colors.grey,
             labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-            tabs: const [
-              Tab(text: 'Car'),
-              Tab(text: 'Motorcycle'),
+            tabs: [
+              Tab(text: (AppLocalizations.of(context)!.car)),
+              Tab(text: (AppLocalizations.of(context)!.motorcycle)),
             ],
           ),
 

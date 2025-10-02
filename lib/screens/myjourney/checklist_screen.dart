@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 
 class ChecklistScreen extends StatefulWidget {
   const ChecklistScreen({super.key});
@@ -203,7 +204,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.folder, color: Color(0xFFE07C7C)),
-                title: const Text('Create New Project'),
+                title:  Text((AppLocalizations.of(context)!.addNewEvent)),
                 onTap: () {
                   Navigator.pop(context);
                   _showAddProjectDialog();
@@ -211,7 +212,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.task, color: Color(0xFFE07C7C)),
-                title: const Text('Add New Task'),
+                title: Text((AppLocalizations.of(context)!.addNewTask)),
                 onTap: () {
                   Navigator.pop(context);
                   _showAddTaskDialog();
@@ -237,7 +238,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Create New Project', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text((AppLocalizations.of(context)!.createNewProject), style: TextStyle(fontWeight: FontWeight.bold)),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -245,7 +246,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                     TextField(
                       controller: _projectTitleController,
                       decoration: InputDecoration(
-                        labelText: 'Project Title *',
+                        labelText: (AppLocalizations.of(context)!.projectTittle),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -320,7 +321,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
+                  child: Text((AppLocalizations.of(context)!.cancel)),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -341,7 +342,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFE07C7C),
                   ),
-                  child: const Text('Create Project'),
+                  child: Text((AppLocalizations.of(context)!.createNewProject)),
                 ),
               ],
             );
@@ -355,8 +356,8 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
     if (_projects.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please create a project first'),
+        SnackBar(
+          content: Text((AppLocalizations.of(context)!.pleasecreateaprojectfirst)),
           backgroundColor: Color(0xFFE07C7C),
         ),
       );
@@ -375,7 +376,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Add New Task', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text((AppLocalizations.of(context)!.addNewTask), style: TextStyle(fontWeight: FontWeight.bold)),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -395,7 +396,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                         });
                       },
                       decoration: InputDecoration(
-                        labelText: 'Project *',
+                        labelText: (AppLocalizations.of(context)!.project),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -407,7 +408,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                     TextField(
                       controller: _taskTitleController,
                       decoration: InputDecoration(
-                        labelText: 'Task Title *',
+                        labelText: (AppLocalizations.of(context)!.taskTittle),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -420,7 +421,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                       controller: _taskDescriptionController,
                       maxLines: 3,
                       decoration: InputDecoration(
-                        labelText: 'Description (optional)',
+                        labelText: (AppLocalizations.of(context)!.descriptionoptional),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -460,7 +461,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
+                  child: Text((AppLocalizations.of(context)!.cancel)),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -483,7 +484,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFE07C7C),
                   ),
-                  child: const Text('Add Task'),
+                  child: Text((AppLocalizations.of(context)!.addTask)),
                 ),
               ],
             );
@@ -507,7 +508,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Edit Task', style: TextStyle(fontWeight: FontWeight.bold)),
+              title: Text((AppLocalizations.of(context)!.editTask), style: TextStyle(fontWeight: FontWeight.bold)),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -527,7 +528,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                         });
                       },
                       decoration: InputDecoration(
-                        labelText: 'Project *',
+                        labelText: (AppLocalizations.of(context)!.project),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -539,7 +540,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                     TextField(
                       controller: _taskTitleController,
                       decoration: InputDecoration(
-                        labelText: 'Task Title *',
+                        labelText: (AppLocalizations.of(context)!.taskTittle),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -552,7 +553,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                       controller: _taskDescriptionController,
                       maxLines: 3,
                       decoration: InputDecoration(
-                        labelText: 'Description (optional)',
+                        labelText: (AppLocalizations.of(context)!.descriptionoptional),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -596,12 +597,12 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                     Navigator.pop(context);
                   },
                   style: TextButton.styleFrom(foregroundColor: Colors.red),
-                  child: const Text('Delete'),
+                  child: Text((AppLocalizations.of(context)!.delete)),
                 ),
                 const Spacer(),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
+                  child: Text((AppLocalizations.of(context)!.cancel)),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -620,7 +621,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFE07C7C),
                   ),
-                  child: const Text('Save Changes'),
+                  child: Text((AppLocalizations.of(context)!.saveChanges)),
                 ),
               ],
             );
@@ -636,12 +637,12 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete Task'),
-          content: const Text('Are you sure you want to delete this task?'),
+          title: Text((AppLocalizations.of(context)!.deleteTask)),
+          content: Text((AppLocalizations.of(context)!.areyousureyouwanttodeletethistask)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text((AppLocalizations.of(context)!.cancel)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -649,7 +650,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text('Delete'),
+              child: Text((AppLocalizations.of(context)!.delete)),
             ),
           ],
         );
@@ -663,12 +664,12 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete Project'),
-          content: const Text('Are you sure you want to delete this project? All tasks in this project will also be deleted.'),
+          title:  Text((AppLocalizations.of(context)!.deleteProject)),
+          content: Text((AppLocalizations.of(context)!.areyousureyouwanttodeletethisprojectAlltasksinthisprojectwillalsobedeleted)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text((AppLocalizations.of(context)!.cancel)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -676,7 +677,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text('Delete'),
+              child: Text((AppLocalizations.of(context)!.delete)),
             ),
           ],
         );
@@ -732,10 +733,10 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Projects section (always shown)
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Text(
-              'Projects',
+              (AppLocalizations.of(context)!.project),
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -845,7 +846,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        'Progress',
+                                        (AppLocalizations.of(context)!.progress),
                                         style: TextStyle(
                                           fontSize: 12,
                                           color: Colors.grey[600],
