@@ -25,7 +25,7 @@ class _CanteenPage extends State<CanteenPage>
                 // Back button
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.red[200],
+                    color: Color(0xFF107966),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: IconButton(
@@ -68,9 +68,9 @@ class _CanteenPage extends State<CanteenPage>
                   padding: const EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
-                        'Canteen Overview',
+                        (AppLocalizations.of(context)!.canteenOverview),
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -93,13 +93,13 @@ class _CanteenPage extends State<CanteenPage>
           Expanded(
             child: Container(
               width: double.infinity,
-              color: Colors.red[300],
+              color: Color(0xFF107966),
               padding:
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Available Stalls',
+                  Text((AppLocalizations.of(context)!.availableStall),
                       style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
@@ -219,7 +219,7 @@ class _BenefitItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
           child: Row(
             children: [
-              Icon(Icons.store, color: Colors.red[300]),
+              Icon(Icons.store, color: Color(0xFF107966)),
               const SizedBox(width: 12),
               Text(
                 text,

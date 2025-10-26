@@ -144,7 +144,7 @@ class _MeetTheTeamScreenState extends State<MeetTheTeamScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color.fromRGBO(224, 124, 124, 1),
+                color: const Color(0xFF107966),
                 borderRadius: BorderRadius.circular(6),
               ),
               alignment: Alignment.center,
@@ -189,7 +189,7 @@ class _MeetTheTeamScreenState extends State<MeetTheTeamScreen> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: const Color.fromRGBO(224, 124, 124, 1),
+                      color: const Color(0xFF107966),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     alignment: Alignment.center,
@@ -276,8 +276,11 @@ class TeamMemberCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const UserProfileDetailScreen(
-                //member: member, // hantar data kalau perlu
+              builder: (context) => UserProfileDetailScreen(
+                userData: {
+                  'name': member.name,
+                  'position': member.position,
+                },
               ),
             ),
           );

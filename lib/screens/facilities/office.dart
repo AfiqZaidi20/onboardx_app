@@ -21,7 +21,7 @@ class OfficePage extends StatelessWidget {
                   // Back button
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.red[200],
+                      color: Color(0xFF107966),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: IconButton(
@@ -243,7 +243,7 @@ class OfficePage extends StatelessWidget {
                           icon: const Icon(Icons.directions, size: 20),
                           label: Text((AppLocalizations.of(context)!.getDirections)),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red[400],
+                            backgroundColor: Color(0xFF107966),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 12),
                             shape: RoundedRectangleBorder(
@@ -271,7 +271,7 @@ class OfficePage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Open in Maps'),
+        title: Text((AppLocalizations.of(context)!.openInMaps)),
         content: const Text('Would you like to open this location in your maps application?'),
         actions: [
           TextButton(
@@ -284,8 +284,8 @@ class OfficePage extends StatelessWidget {
               // Here you would typically launch the maps URL
               launchUrl(Uri.parse('https://www.google.com/maps?rlz=1C1ONGR_enMY1067MY1067&gs_lcrp=EgZjaHJvbWUqEggBEC4YJxivARjHARiABBiKBTIMCAAQRRg5GLEDGIAEMhIIARAuGCcYrwEYxwEYgAQYigUyDQgCEC4YrwEYxwEYgAQyEAgDEC4YrwEYxwEYsQMYgAQyDQgEEC4YrwEYxwEYgAQyDQgFEC4YxwEY0QMYgAQyEwgGEC4YrwEYxwEYgAQYmAUYmQUyDQgHEC4YxwEY0QMYgAQyDQgIEC4YrwEYxwEYgATSAQk0NTQzajBqMTWoAgiwAgHxBSsO3w-5w2Wp&um=1&ie=UTF-8&fb=1&gl=my&sa=X&geocode=KZFPEDhFTMwxMZXR3YvKMBE_&daddr=Jalan+Pengaturcara+U1/51,+Kawasan+Perindustrian+Temasya,+40150+Shah+Alam,+Selangor'));
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Opening maps application...'),
+                SnackBar(
+                  content: Text((AppLocalizations.of(context)!.openingMapsApplication)),
                   duration: Duration(seconds: 2),
                 ),
               );

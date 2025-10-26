@@ -1,9 +1,8 @@
-// checklist.screen.dart (patched)
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:onboardx_app/l10n/app_localizations.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ChecklistScreen extends StatefulWidget {
   const ChecklistScreen({super.key});
@@ -13,9 +12,11 @@ class ChecklistScreen extends StatefulWidget {
 }
 
 class _ChecklistScreenState extends State<ChecklistScreen> {
-  // Firebase instances
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // Firebase Auth instance (hanya untuk auth)
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  
+  // Supabase client
+  final SupabaseClient _supabase = Supabase.instance.client;
   
   // Project and task data
   List<Map<String, dynamic>> _projects = [];
@@ -33,7 +34,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
   @override
   void initState() {
     super.initState();
-    // Load data from Firebase
+    // Load data from Supabase
     _loadProjects();
     _loadTasks();
   }
@@ -50,29 +51,26 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-        final querySnapshot = await _firestore
-            .collection('projects')
-            .where('userId', isEqualTo: user.uid)
-            .get();
+        final response = await _supabase
+            .from('projects')
+            .select()
+            .eq('user_id', user.uid)
+            .order('created_at', ascending: false);
 
-        if (!mounted) return; // <<< safety check
+        if (!mounted) return;
+
         setState(() {
-          _projects = querySnapshot.docs.map((doc) {
-            final data = doc.data();
-            // defensive access in case fields missing
-            Timestamp? s = data['startDate'] is Timestamp ? data['startDate'] as Timestamp : null;
-            Timestamp? e = data['endDate'] is Timestamp ? data['endDate'] as Timestamp : null;
+          _projects = (response as List).map((doc) {
             return {
-              'id': doc.id,
-              'title': data['title'] ?? '',
-              'startDate': s?.toDate() ?? DateTime.now(),
-              'endDate': e?.toDate() ?? DateTime.now().add(const Duration(days: 7)),
+              'id': doc['id'].toString(),
+              'title': doc['title'] ?? '',
+              'startDate': DateTime.parse(doc['start_date']),
+              'endDate': DateTime.parse(doc['end_date']),
             };
           }).toList();
         });
       }
     } catch (e) {
-      // avoid calling setState inside catch without mounted
       print('Error loading projects: $e');
     }
   }
@@ -81,23 +79,23 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-        final querySnapshot = await _firestore
-            .collection('tasks')
-            .where('userId', isEqualTo: user.uid)
-            .get();
+        final response = await _supabase
+            .from('tasks')
+            .select()
+            .eq('user_id', user.uid)
+            .order('created_at', ascending: false);
 
-        if (!mounted) return; // <<< safety check
+        if (!mounted) return;
+
         setState(() {
-          _tasks = querySnapshot.docs.map((doc) {
-            final data = doc.data();
-            Timestamp? d = data['dueDate'] is Timestamp ? data['dueDate'] as Timestamp : null;
+          _tasks = (response as List).map((doc) {
             return {
-              'id': doc.id,
-              'projectId': data['projectId'],
-              'title': data['title'] ?? '',
-              'description': data['description'] ?? '',
-              'dueDate': d?.toDate() ?? DateTime.now().add(const Duration(days: 1)),
-              'completed': data['completed'] ?? false,
+              'id': doc['id'].toString(),
+              'projectId': doc['project_id'].toString(),
+              'title': doc['title'] ?? '',
+              'description': doc['description'] ?? '',
+              'dueDate': DateTime.parse(doc['due_date']),
+              'completed': doc['completed'] ?? false,
             };
           }).toList();
         });
@@ -111,14 +109,13 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-        await _firestore.collection('projects').add({
+        await _supabase.from('projects').insert({
           'title': project['title'],
-          'startDate': Timestamp.fromDate(project['startDate']),
-          'endDate': Timestamp.fromDate(project['endDate']),
-          'userId': user.uid,
-          'createdAt': Timestamp.now(),
+          'start_date': project['startDate'].toIso8601String(),
+          'end_date': project['endDate'].toIso8601String(),
+          'user_id': user.uid,
         });
-        // reload after add
+
         if (!mounted) return;
         await _loadProjects();
       }
@@ -131,15 +128,15 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-        await _firestore.collection('tasks').add({
-          'projectId': task['projectId'],
+        await _supabase.from('tasks').insert({
+          'project_id': int.parse(task['projectId']),
           'title': task['title'],
           'description': task['description'],
-          'dueDate': Timestamp.fromDate(task['dueDate']),
+          'due_date': task['dueDate'].toIso8601String(),
           'completed': task['completed'],
-          'userId': user.uid,
-          'createdAt': Timestamp.now(),
+          'user_id': user.uid,
         });
+
         if (!mounted) return;
         await _loadTasks();
       }
@@ -150,7 +147,13 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
 
   Future<void> _updateTask(String taskId, Map<String, dynamic> updates) async {
     try {
-      await _firestore.collection('tasks').doc(taskId).update(updates);
+      await _supabase.from('tasks').update({
+        'title': updates['title'],
+        'description': updates['description'],
+        'due_date': updates['dueDate'].toIso8601String(),
+        'project_id': int.parse(updates['projectId']),
+      }).eq('id', int.parse(taskId));
+
       if (!mounted) return;
       await _loadTasks();
     } catch (e) {
@@ -160,7 +163,11 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
 
   Future<void> _deleteTask(String taskId) async {
     try {
-      await _firestore.collection('tasks').doc(taskId).delete();
+      await _supabase
+          .from('tasks')
+          .delete()
+          .eq('id', int.parse(taskId));
+
       if (!mounted) return;
       await _loadTasks();
     } catch (e) {
@@ -170,49 +177,71 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
 
   Future<void> _deleteProject(String projectId) async {
     try {
-      // First delete all tasks associated with this project
-      final tasksQuery = await _firestore
-          .collection('tasks')
-          .where('projectId', isEqualTo: projectId)
-          .get();
-
-      for (var doc in tasksQuery.docs) {
-        await doc.reference.delete();
-      }
+      // Delete all tasks associated with this project first
+      await _supabase
+          .from('tasks')
+          .delete()
+          .eq('project_id', int.parse(projectId));
 
       // Then delete the project
-      await _firestore.collection('projects').doc(projectId).delete();
+      await _supabase
+          .from('projects')
+          .delete()
+          .eq('id', int.parse(projectId));
       
       if (!mounted) return;
-      await _loadProjects(); // Reload projects after deleting
+      await _loadProjects();
       if (!mounted) return;
-      await _loadTasks(); // Reload tasks after deleting
+      await _loadTasks();
     } catch (e) {
       print('Error deleting project: $e');
     }
   }
 
+  // Toggle task completion
+  Future<void> _toggleTaskCompletion(Map<String, dynamic> task) async {
+    try {
+      await _supabase.from('tasks').update({
+        'completed': !task['completed'],
+      }).eq('id', int.parse(task['id']));
+
+      if (!mounted) return;
+      await _loadTasks();
+    } catch (e) {
+      print('Error toggling task completion: $e');
+    }
+  }
+
+  // Metode UI lainnya tetap sama (_showAddOptionsDialog, _showAddProjectDialog, dll)
+  // Hanya ganti bagian Firebase dengan Supabase seperti di atas
+
   void _showAddOptionsDialog() {
+    final theme = Theme.of(context);
+    final bool isDarkMode = theme.brightness == Brightness.dark;
+    final cardColor = theme.cardColor;
+    final textColor = theme.textTheme.bodyLarge?.color;
+    
     if (!mounted) return;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Add New', style: TextStyle(fontWeight: FontWeight.bold)),
+          backgroundColor: cardColor,
+          title: Text((AppLocalizations.of(context)!.addNew), style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.folder, color: Color(0xFFE07C7C)),
-                title:  Text((AppLocalizations.of(context)!.addNewEvent)),
+                leading: Icon(Icons.folder, color: isDarkMode ? const Color.fromRGBO(180, 100, 100, 1) : const Color(0xFFE07C7C)),
+                title: Text((AppLocalizations.of(context)!.createNewProject), style: TextStyle(color: textColor)),
                 onTap: () {
                   Navigator.pop(context);
                   _showAddProjectDialog();
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.task, color: Color(0xFFE07C7C)),
-                title: Text((AppLocalizations.of(context)!.addNewTask)),
+                leading: Icon(Icons.task, color: isDarkMode ? const Color.fromRGBO(180, 100, 100, 1) : const Color(0xFFE07C7C)),
+                title: Text((AppLocalizations.of(context)!.addNewTask), style: TextStyle(color: textColor)),
                 onTap: () {
                   Navigator.pop(context);
                   _showAddTaskDialog();
@@ -226,6 +255,12 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
   }
 
   void _showAddProjectDialog() {
+    final theme = Theme.of(context);
+    final bool isDarkMode = theme.brightness == Brightness.dark;
+    final cardColor = theme.cardColor;
+    final textColor = theme.textTheme.bodyLarge?.color;
+    final hintColor = theme.hintColor;
+    
     // Reset form fields
     _projectTitleController.clear();
     _projectStartDate = DateTime.now();
@@ -238,20 +273,23 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text((AppLocalizations.of(context)!.createNewProject), style: TextStyle(fontWeight: FontWeight.bold)),
+              backgroundColor: cardColor,
+              title: Text((AppLocalizations.of(context)!.createNewProject), style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextField(
                       controller: _projectTitleController,
+                      style: TextStyle(color: textColor),
                       decoration: InputDecoration(
                         labelText: (AppLocalizations.of(context)!.projectTittle),
+                        labelStyle: TextStyle(color: hintColor),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         filled: true,
-                        fillColor: Colors.grey[50],
+                        fillColor: isDarkMode ? Colors.grey[800] : Colors.grey[50],
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -274,14 +312,15 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                               }
                             },
                             style: OutlinedButton.styleFrom(
-                              backgroundColor: Colors.grey[50],
+                              backgroundColor: isDarkMode ? Colors.grey[800] : Colors.grey[50],
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
+                              side: BorderSide(color: isDarkMode ? Colors.grey[600]! : Colors.grey[300]!),
                             ),
                             child: Text(
                               'Start: ${DateFormat('MMM d, yyyy').format(_projectStartDate)}',
-                              style: const TextStyle(fontSize: 14),
+                              style: TextStyle(fontSize: 14, color: textColor),
                             ),
                           ),
                         ),
@@ -302,14 +341,15 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                               }
                             },
                             style: OutlinedButton.styleFrom(
-                              backgroundColor: Colors.grey[50],
+                              backgroundColor: isDarkMode ? Colors.grey[800] : Colors.grey[50],
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
+                              side: BorderSide(color: isDarkMode ? Colors.grey[600]! : Colors.grey[300]!),
                             ),
                             child: Text(
                               'End: ${DateFormat('MMM d, yyyy').format(_projectEndDate)}',
-                              style: const TextStyle(fontSize: 14),
+                              style: TextStyle(fontSize: 14, color: textColor),
                             ),
                           ),
                         ),
@@ -321,7 +361,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text((AppLocalizations.of(context)!.cancel)),
+                  child: Text((AppLocalizations.of(context)!.cancel), style: TextStyle(color: textColor)),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -333,16 +373,16 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                         'endDate': _projectEndDate,
                       };
 
-                      // Add to Firebase
+                      // Add to Supabase
                       _addProject(newProject);
 
                       Navigator.pop(context);
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE07C7C),
+                    backgroundColor: isDarkMode ? const Color.fromRGBO(180, 100, 100, 1) : const Color(0xFFE07C7C),
                   ),
-                  child: Text((AppLocalizations.of(context)!.createNewProject)),
+                  child: Text((AppLocalizations.of(context)!.createProject), style: TextStyle(color: Colors.white)),
                 ),
               ],
             );
@@ -353,6 +393,12 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
   }
 
   void _showAddTaskDialog() {
+    final theme = Theme.of(context);
+    final bool isDarkMode = theme.brightness == Brightness.dark;
+    final cardColor = theme.cardColor;
+    final textColor = theme.textTheme.bodyLarge?.color;
+    final hintColor = theme.hintColor;
+    
     if (_projects.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -376,7 +422,8 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text((AppLocalizations.of(context)!.addNewTask), style: TextStyle(fontWeight: FontWeight.bold)),
+              backgroundColor: cardColor,
+              title: Text((AppLocalizations.of(context)!.addNewTask), style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -384,10 +431,12 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                     // Project selection
                     DropdownButtonFormField(
                       value: _selectedProject?['id'] ?? _projects.first['id'],
+                      dropdownColor: isDarkMode ? Colors.grey[800] : Colors.white,
+                      style: TextStyle(color: textColor),
                       items: _projects.map((project) {
                         return DropdownMenuItem(
                           value: project['id'],
-                          child: Text(project['title']),
+                          child: Text(project['title'], style: TextStyle(color: textColor)),
                         );
                       }).toList(),
                       onChanged: (value) {
@@ -397,36 +446,41 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                       },
                       decoration: InputDecoration(
                         labelText: (AppLocalizations.of(context)!.project),
+                        labelStyle: TextStyle(color: hintColor),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         filled: true,
-                        fillColor: Colors.grey[50],
+                        fillColor: isDarkMode ? Colors.grey[800] : Colors.grey[50],
                       ),
                     ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: _taskTitleController,
+                      style: TextStyle(color: textColor),
                       decoration: InputDecoration(
                         labelText: (AppLocalizations.of(context)!.taskTittle),
+                        labelStyle: TextStyle(color: hintColor),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         filled: true,
-                        fillColor: Colors.grey[50],
+                        fillColor: isDarkMode ? Colors.grey[800] : Colors.grey[50],
                       ),
                     ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: _taskDescriptionController,
+                      style: TextStyle(color: textColor),
                       maxLines: 3,
                       decoration: InputDecoration(
                         labelText: (AppLocalizations.of(context)!.descriptionoptional),
+                        labelStyle: TextStyle(color: hintColor),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         filled: true,
-                        fillColor: Colors.grey[50],
+                        fillColor: isDarkMode ? Colors.grey[800] : Colors.grey[50],
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -445,14 +499,15 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                         }
                       },
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.grey[50],
+                        backgroundColor: isDarkMode ? Colors.grey[800] : Colors.grey[50],
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
+                        side: BorderSide(color: isDarkMode ? Colors.grey[600]! : Colors.grey[300]!),
                       ),
                       child: Text(
                         'Due Date: ${DateFormat('MMM d, yyyy').format(_taskDueDate)}',
-                        style: const TextStyle(fontSize: 14),
+                        style: TextStyle(fontSize: 14, color: textColor),
                       ),
                     ),
                   ],
@@ -461,7 +516,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text((AppLocalizations.of(context)!.cancel)),
+                  child: Text((AppLocalizations.of(context)!.cancel), style: TextStyle(color: textColor)),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -475,16 +530,16 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                         'completed': false,
                       };
 
-                      // Add to Firebase
+                      // Add to Supabase
                       _addTask(newTask);
 
                       Navigator.pop(context);
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE07C7C),
+                    backgroundColor: isDarkMode ? const Color.fromRGBO(180, 100, 100, 1) : const Color(0xFFE07C7C),
                   ),
-                  child: Text((AppLocalizations.of(context)!.addTask)),
+                  child: Text((AppLocalizations.of(context)!.addTask), style: TextStyle(color: Colors.white)),
                 ),
               ],
             );
@@ -495,6 +550,12 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
   }
 
   void _showEditTaskDialog(Map<String, dynamic> task) {
+    final theme = Theme.of(context);
+    final bool isDarkMode = theme.brightness == Brightness.dark;
+    final cardColor = theme.cardColor;
+    final textColor = theme.textTheme.bodyLarge?.color;
+    final hintColor = theme.hintColor;
+    
     // Set form fields with existing task data
     _taskTitleController.text = task['title'];
     _taskDescriptionController.text = task['description'] ?? '';
@@ -508,7 +569,8 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text((AppLocalizations.of(context)!.editTask), style: TextStyle(fontWeight: FontWeight.bold)),
+              backgroundColor: cardColor,
+              title: Text((AppLocalizations.of(context)!.editTask), style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -516,10 +578,12 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                     // Project selection
                     DropdownButtonFormField(
                       value: _selectedProject?['id'],
+                      dropdownColor: isDarkMode ? Colors.grey[800] : Colors.white,
+                      style: TextStyle(color: textColor),
                       items: _projects.map((project) {
                         return DropdownMenuItem(
                           value: project['id'],
-                          child: Text(project['title']),
+                          child: Text(project['title'], style: TextStyle(color: textColor)),
                         );
                       }).toList(),
                       onChanged: (value) {
@@ -529,36 +593,41 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                       },
                       decoration: InputDecoration(
                         labelText: (AppLocalizations.of(context)!.project),
+                        labelStyle: TextStyle(color: hintColor),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         filled: true,
-                        fillColor: Colors.grey[50],
+                        fillColor: isDarkMode ? Colors.grey[800] : Colors.grey[50],
                       ),
                     ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: _taskTitleController,
+                      style: TextStyle(color: textColor),
                       decoration: InputDecoration(
                         labelText: (AppLocalizations.of(context)!.taskTittle),
+                        labelStyle: TextStyle(color: hintColor),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         filled: true,
-                        fillColor: Colors.grey[50],
+                        fillColor: isDarkMode ? Colors.grey[800] : Colors.grey[50],
                       ),
                     ),
                     const SizedBox(height: 16),
                     TextField(
                       controller: _taskDescriptionController,
+                      style: TextStyle(color: textColor),
                       maxLines: 3,
                       decoration: InputDecoration(
                         labelText: (AppLocalizations.of(context)!.descriptionoptional),
+                        labelStyle: TextStyle(color: hintColor),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         filled: true,
-                        fillColor: Colors.grey[50],
+                        fillColor: isDarkMode ? Colors.grey[800] : Colors.grey[50],
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -577,14 +646,15 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                         }
                       },
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.grey[50],
+                        backgroundColor: isDarkMode ? Colors.grey[800] : Colors.grey[50],
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
+                        side: BorderSide(color: isDarkMode ? Colors.grey[600]! : Colors.grey[300]!),
                       ),
                       child: Text(
                         'Due Date: ${DateFormat('MMM d, yyyy').format(_taskDueDate)}',
-                        style: const TextStyle(fontSize: 14),
+                        style: TextStyle(fontSize: 14, color: textColor),
                       ),
                     ),
                   ],
@@ -602,16 +672,16 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                 const Spacer(),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text((AppLocalizations.of(context)!.cancel)),
+                  child: Text('Cancel', style: TextStyle(color: textColor)),
                 ),
                 ElevatedButton(
                   onPressed: () {
                     if (_taskTitleController.text.isNotEmpty) {
-                      // Update task in Firebase
+                      // Update task in Supabase
                       _updateTask(task['id'], {
                         'title': _taskTitleController.text,
                         'description': _taskDescriptionController.text,
-                        'dueDate': Timestamp.fromDate(_taskDueDate),
+                        'dueDate': _taskDueDate,
                         'projectId': _selectedProject?['id'],
                       });
 
@@ -619,9 +689,9 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE07C7C),
+                    backgroundColor: isDarkMode ? const Color.fromRGBO(180, 100, 100, 1) : const Color(0xFFE07C7C),
                   ),
-                  child: Text((AppLocalizations.of(context)!.saveChanges)),
+                  child: Text((AppLocalizations.of(context)!.saveChanges), style: TextStyle(color: Colors.white)),
                 ),
               ],
             );
@@ -632,17 +702,23 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
   }
 
   void _confirmDeleteTask(String taskId) {
+    final theme = Theme.of(context);
+    final bool isDarkMode = theme.brightness == Brightness.dark;
+    final cardColor = theme.cardColor;
+    final textColor = theme.textTheme.bodyLarge?.color;
+    
     if (!mounted) return;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text((AppLocalizations.of(context)!.deleteTask)),
-          content: Text((AppLocalizations.of(context)!.areyousureyouwanttodeletethistask)),
+          backgroundColor: cardColor,
+          title: Text((AppLocalizations.of(context)!.deleteTask), style: TextStyle(color: textColor)),
+          content: Text((AppLocalizations.of(context)!.areyousureyouwanttodeletethistask), style: TextStyle(color: textColor)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text((AppLocalizations.of(context)!.cancel)),
+              child: Text((AppLocalizations.of(context)!.cancel), style: TextStyle(color: textColor)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -650,7 +726,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: Text((AppLocalizations.of(context)!.delete)),
+              child: Text((AppLocalizations.of(context)!.delete), style: TextStyle(color: Colors.white)),
             ),
           ],
         );
@@ -659,17 +735,23 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
   }
 
   void _confirmDeleteProject(String projectId) {
+    final theme = Theme.of(context);
+    final bool isDarkMode = theme.brightness == Brightness.dark;
+    final cardColor = theme.cardColor;
+    final textColor = theme.textTheme.bodyLarge?.color;
+    
     if (!mounted) return;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title:  Text((AppLocalizations.of(context)!.deleteProject)),
-          content: Text((AppLocalizations.of(context)!.areyousureyouwanttodeletethisprojectAlltasksinthisprojectwillalsobedeleted)),
+          backgroundColor: cardColor,
+          title: Text((AppLocalizations.of(context)!.deleteProject), style: TextStyle(color: textColor)),
+          content: Text((AppLocalizations.of(context)!.areyousureyouwanttodeletethisprojectAlltasksinthisprojectwillalsobedeleted), style: TextStyle(color: textColor)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text((AppLocalizations.of(context)!.cancel)),
+              child: Text((AppLocalizations.of(context)!.cancel), style: TextStyle(color: textColor)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -677,7 +759,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: Text((AppLocalizations.of(context)!.delete)),
+              child: Text((AppLocalizations.of(context)!.delete), style: TextStyle(color: Colors.white)),
             ),
           ],
         );
@@ -719,27 +801,37 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
     return _getTasksForProject(projectId).length;
   }
 
-  void _toggleTaskCompletion(Map<String, dynamic> task) {
-    // no direct setState here: update via backend and reload tasks
-    _updateTask(task['id'], {
-      'completed': !task['completed'],
-    });
-  }
+  // Metode build dan _buildTaskItem tetap sama seperti sebelumnya
+  // Hanya ganti _toggleTaskCompletion yang sudah diupdate di atas
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bool isDarkMode = theme.brightness == Brightness.dark;
+    final scaffoldBackground = theme.scaffoldBackgroundColor;
+    final cardColor = theme.cardColor;
+    final textColor = theme.textTheme.bodyLarge?.color;
+    final hintColor = theme.hintColor;
+    
+    // Colors that adapt to theme
+    final primaryColor = isDarkMode 
+        ? const Color(0xFF0B5648)
+        : const Color(0xFF107966);
+
     return Scaffold(
+      backgroundColor: scaffoldBackground,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Projects section (always shown)
           Padding(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Text(
               (AppLocalizations.of(context)!.project),
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: textColor,
               ),
             ),
           ),
@@ -771,19 +863,19 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                const Color(0xFFE07C7C).withOpacity(0.3),
-                                const Color(0xFFE07C7C).withOpacity(0.1),
+                                primaryColor.withOpacity(0.3),
+                                primaryColor.withOpacity(0.1),
                               ],
                             )
                           : null,
-                      color: isSelected ? null : Colors.white,
+                      color: isSelected ? null : cardColor,
                       borderRadius: BorderRadius.circular(16),
                       border: isSelected 
-                          ? Border.all(color: const Color(0xFFE07C7C), width: 2)
-                          : Border.all(color: Colors.grey.shade200, width: 1),
+                          ? Border.all(color: primaryColor, width: 2)
+                          : Border.all(color: isDarkMode ? Colors.grey[700]! : Colors.grey.shade200, width: 1),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.15),
+                          color: Colors.grey.withOpacity(isDarkMode ? 0.1 : 0.15),
                           spreadRadius: 1,
                           blurRadius: 6,
                           offset: const Offset(0, 3),
@@ -803,7 +895,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                 children: [
                                   Icon(
                                     Icons.folder,
-                                    color: isSelected ? const Color(0xFFE07C7C) : Colors.grey,
+                                    color: isSelected ? primaryColor : (isDarkMode ? Colors.grey[400] : Colors.grey),
                                     size: 18,
                                   ),
                                   const SizedBox(width: 8),
@@ -813,7 +905,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
-                                        color: isSelected ? const Color(0xFFE07C7C) : Colors.black,
+                                        color: isSelected ? primaryColor : textColor,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -825,13 +917,13 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                               // Date range
                               Row(
                                 children: [
-                                  Icon(Icons.calendar_today, size: 12, color: Colors.grey[600]),
+                                  Icon(Icons.calendar_today, size: 12, color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                                   const SizedBox(width: 4),
                                   Text(
                                     '$startDate - $endDate',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey[600],
+                                      color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                                     ),
                                   ),
                                 ],
@@ -849,7 +941,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                         (AppLocalizations.of(context)!.progress),
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: Colors.grey[600],
+                                          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                                         ),
                                       ),
                                       Text(
@@ -857,7 +949,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
-                                          color: isSelected ? const Color(0xFFE07C7C) : Colors.black,
+                                          color: isSelected ? primaryColor : textColor,
                                         ),
                                       ),
                                     ],
@@ -867,11 +959,11 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                   // Progress bar
                                   LinearProgressIndicator(
                                     value: progress.toDouble(),
-                                    backgroundColor: Colors.grey[300],
+                                    backgroundColor: isDarkMode ? Colors.grey[700] : Colors.grey[300],
                                     valueColor: AlwaysStoppedAnimation<Color>(
                                       progress == 1 
                                         ? Colors.green 
-                                        : const Color(0xFFE07C7C),
+                                        : primaryColor,
                                     ),
                                     minHeight: 6,
                                   ),
@@ -882,7 +974,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                     '$completedTasks/$totalTasks tasks completed',
                                     style: TextStyle(
                                       fontSize: 10,
-                                      color: Colors.grey[600],
+                                      color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                                     ),
                                   ),
                                 ],
@@ -899,14 +991,13 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                             width: 24,
                             height: 24,
                             decoration: BoxDecoration(
-                              color: Colors.grey.withOpacity(0.2),
+                              color: isDarkMode ? Colors.grey[700] : Colors.grey.withOpacity(0.2),
                               shape: BoxShape.circle,
                             ),
                             child: IconButton(
-                              icon: const Icon(Icons.close, size: 14),
+                              icon: Icon(Icons.close, size: 14, color: isDarkMode ? Colors.grey[300] : Colors.grey[700]),
                               onPressed: () => _confirmDeleteProject(project['id']),
                               padding: EdgeInsets.zero,
-                              color: Colors.grey[700],
                             ),
                           ),
                         ),
@@ -927,23 +1018,24 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                 children: [
                   Text(
                     _selectedProject!['title'],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
+                      color: textColor,
                     ),
                   ),
                   Text(
                     '${_getCompletedTaskCount(_selectedProject!['id'])}/${_getTotalTaskCount(_selectedProject!['id'])} completed',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey[600],
+                      color: hintColor,
                     ),
                   ),
                 ],
               ),
             ),
             
-            const Divider(height: 1),
+            Divider(height: 1, color: isDarkMode ? Colors.grey[700] : Colors.grey[200]),
             
             Expanded(
               child: _getTasksForProject(_selectedProject!['id']).isEmpty
@@ -951,21 +1043,21 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.task, size: 64, color: Colors.grey[300]),
+                          Icon(Icons.task, size: 64, color: isDarkMode ? Colors.grey[600] : Colors.grey[300]),
                           const SizedBox(height: 16),
-                          const Text(
-                            'No tasks yet',
+                          Text(
+                            (AppLocalizations.of(context)!.noTaskYet),
                             style: TextStyle(
                               fontSize: 18,
-                              color: Colors.grey,
+                              color: hintColor,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Tap + to add your first task',
+                            (AppLocalizations.of(context)!.tapToAddYourFirstTask),
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.grey[400],
+                              color: hintColor,
                             ),
                           ),
                         ],
@@ -977,29 +1069,29 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                         children: [
                           // Incomplete Tasks Section
                           if (_getIncompleteTasksForProject(_selectedProject!['id']).isNotEmpty) ...[
-                            const Padding(
-                              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                               child: Text(
-                                'Incomplete Tasks',
+                                (AppLocalizations.of(context)!.incompleteTask),
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFFE07C7C),
+                                  color: primaryColor,
                                 ),
                               ),
                             ),
                             ..._getIncompleteTasksForProject(_selectedProject!['id']).map((task) {
                               final dueDate = DateFormat('MMM d, yyyy').format(task['dueDate']);
-                              return _buildTaskItem(task, dueDate);
+                              return _buildTaskItem(task, dueDate, isDarkMode, primaryColor, cardColor, textColor, hintColor);
                             }).toList(),
                           ],
                           
                           // Completed Tasks Section
                           if (_getCompletedTasksForProject(_selectedProject!['id']).isNotEmpty) ...[
-                            const Padding(
+                            Padding(
                               padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
                               child: Text(
-                                'Completed Tasks',
+                                (AppLocalizations.of(context)!.completedTask),
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -1009,7 +1101,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                             ),
                             ..._getCompletedTasksForProject(_selectedProject!['id']).map((task) {
                               final dueDate = DateFormat('MMM d, yyyy').format(task['dueDate']);
-                              return _buildTaskItem(task, dueDate);
+                              return _buildTaskItem(task, dueDate, isDarkMode, primaryColor, cardColor, textColor, hintColor);
                             }).toList(),
                           ],
                         ],
@@ -1017,18 +1109,18 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                     ),
             ),
           ] else if (_projects.isNotEmpty) ...[
-            const Expanded(
+            Expanded(
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.folder_open, size: 64, color: Colors.grey),
-                    SizedBox(height: 16),
+                    Icon(Icons.folder_open, size: 64, color: hintColor),
+                    const SizedBox(height: 16),
                     Text(
-                      'Select a project to view its tasks',
+                      (AppLocalizations.of(context)!.selectAProjectToViewItTask),
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.grey,
+                        color: hintColor,
                       ),
                     ),
                   ],
@@ -1036,26 +1128,26 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
               ),
             ),
           ] else ...[
-            const Expanded(
+            Expanded(
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.add_task, size: 64, color: Colors.grey),
-                    SizedBox(height: 16),
+                    Icon(Icons.add_task, size: 64, color: hintColor),
+                    const SizedBox(height: 16),
                     Text(
-                      'No projects yet',
+                      (AppLocalizations.of(context)!.noProjectYet),
                       style: TextStyle(
                         fontSize: 18,
-                        color: Colors.grey,
+                        color: hintColor,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
-                      'Tap + to create your first project',
+                      (AppLocalizations.of(context)!.taptocreateyourfirstproject),
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey,
+                        color: hintColor,
                       ),
                     ),
                   ],
@@ -1067,40 +1159,45 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddOptionsDialog,
-        backgroundColor: const Color(0xFFE07C7C),
+        backgroundColor: primaryColor,
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
 
-  Widget _buildTaskItem(Map<String, dynamic> task, String dueDate) {
+  Widget _buildTaskItem(Map<String, dynamic> task, String dueDate, bool isDarkMode, Color primaryColor, Color cardColor, Color? textColor, Color? hintColor) {
     return Dismissible(
       key: Key(task['id'].toString()),
       direction: DismissDirection.endToStart,
       background: Container(
-        color: Colors.red,
+        color: Color(0xFF107966),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
         child: const Icon(Icons.delete, color: Colors.white),
       ),
       confirmDismiss: (direction) async {
-        // Show confirmation dialog before deleting
         if (!mounted) return false;
         return await showDialog(
           context: context,
           builder: (BuildContext context) {
+            final theme = Theme.of(context);
+            final isDarkMode = theme.brightness == Brightness.dark;
+            final cardColor = theme.cardColor;
+            final textColor = theme.textTheme.bodyLarge?.color;
+            
             return AlertDialog(
-              title: const Text('Confirm Delete'),
-              content: const Text('Are you sure you want to delete this task?'),
+              backgroundColor: cardColor,
+              title: Text((AppLocalizations.of(context)!.confirmDelete), style: TextStyle(color: textColor)),
+              content: Text((AppLocalizations.of(context)!.areyousureyouwanttodeletethistask), style: TextStyle(color: textColor)),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancel'),
+                  child: Text((AppLocalizations.of(context)!.cancel), style: TextStyle(color: textColor)),
                 ),
                 ElevatedButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  child: const Text('Delete'),
+                  style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF107966)),
+                  child: Text((AppLocalizations.of(context)!.delete), style: TextStyle(color: Colors.white)),
                 ),
               ],
             );
@@ -1114,15 +1211,17 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardColor,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: task['completed'] ? Colors.green.shade100 : Colors.grey.shade200,
+            color: task['completed'] 
+                ? (isDarkMode ? Colors.green.shade700 : Colors.green.shade100) 
+                : (isDarkMode ? Colors.grey[700]! : Colors.grey.shade200),
             width: task['completed'] ? 1.5 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withOpacity(isDarkMode ? 0.05 : 0.1),
               spreadRadius: 1,
               blurRadius: 2,
               offset: const Offset(0, 1),
@@ -1136,7 +1235,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
               onChanged: (value) {
                 _toggleTaskCompletion(task);
               },
-              activeColor: const Color(0xFFE07C7C),
+              activeColor: primaryColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(4),
               ),
@@ -1152,8 +1251,9 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                       color: task['completed'] 
-                          ? Colors.grey 
-                          : Colors.black,
+                          ? hintColor 
+                          : textColor,
+                      decoration: task['completed'] ? TextDecoration.lineThrough : TextDecoration.none,
                     ),
                   ),
                   if (task['description'] != null && task['description'].isNotEmpty)
@@ -1163,7 +1263,8 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                         task['description'],
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[600],
+                          color: hintColor,
+                          decoration: task['completed'] ? TextDecoration.lineThrough : TextDecoration.none,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -1176,14 +1277,19 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                         Icon(
                           Icons.calendar_today,
                           size: 12,
-                          color: task['completed'] ? Colors.grey : const Color(0xFFE07C7C),
+                          color: task['completed'] 
+                              ? hintColor 
+                              : primaryColor,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           'Due: $dueDate',
                           style: TextStyle(
                             fontSize: 12,
-                            color: task['completed'] ? Colors.grey : const Color(0xFFE07C7C),
+                            color: task['completed'] 
+                                ? hintColor 
+                                : primaryColor,
+                            decoration: task['completed'] ? TextDecoration.lineThrough : TextDecoration.none,
                           ),
                         ),
                       ],
@@ -1193,7 +1299,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
               ),
             ),
             IconButton(
-              icon: Icon(Icons.edit, size: 20, color: Colors.grey[600]),
+              icon: Icon(Icons.edit, size: 20, color: hintColor),
               onPressed: () => _showEditTaskDialog(task),
             ),
           ],

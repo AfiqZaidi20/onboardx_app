@@ -14,7 +14,7 @@ class CarParkingScreen extends StatelessWidget {
             Expanded(
               child: Container(
                 width: double.infinity,
-                color: Colors.red[300],
+                color: Color(0xFF107966),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
                 child: ListView(

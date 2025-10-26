@@ -4,19 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:onboardx_app/firebase_options.dart';
-import 'package:onboardx_app/l10n/app_localizations.dart';
 import 'package:onboardx_app/screens/auth/login_screen.dart';
 import 'package:onboardx_app/screens/home/home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:onboardx_app/providers/local_auth_provider.dart';
 import 'package:onboardx_app/providers/locale_provider.dart'; // Add locale provider
 import 'package:onboardx_app/services/theme_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
+
+import 'l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  await Supabase.initialize(
+    url: 'https://onboardx.jomcloud.com',
+    anonKey: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc1OTA3MzQ2MCwiZXhwIjo0OTE0NzQ3MDYwLCJyb2xlIjoiYW5vbiJ9.uwjzLVaB3pmtadpSjahKtCRdWGbvntFpFOBCSQLMkck',
   );
 
   // Ensure default theme is light mode
@@ -133,7 +140,12 @@ class AuthWrapper extends StatelessWidget {
 
           User? user = snapshot.data;
           if (user != null) {
-            return const HomeScreen();
+            if (user.emailVerified) {
+              return const HomeScreen();
+            } else {
+              // User is signed in but email is not verified
+              return const LoginScreen();
+            }
           }
           return const LoginScreen();
         }

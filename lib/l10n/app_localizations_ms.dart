@@ -60,6 +60,102 @@ class AppLocalizationsMs extends AppLocalizations {
   String get somethingWentWrong => 'Sesuatu telah berlaku!';
 
   @override
+  String get folderName => 'Nama Folder';
+
+  @override
+  String get create => 'Cipta';
+
+  @override
+  String get edit => 'Ubah';
+
+  @override
+  String get remove => 'Keluarkan';
+
+  @override
+  String get view => 'Lihat';
+
+  @override
+  String get uploading1 => 'Memuat Naik...';
+
+  @override
+  String get uploading => 'Memuat Naik';
+
+  @override
+  String get move => 'Pindah';
+
+  @override
+  String get openingMapsApplication => 'Opening Maps Application';
+
+  @override
+  String get openInMaps => 'Buka didalam Peta';
+
+  @override
+  String get noImage => 'Tiada Gambar';
+
+  @override
+  String get noCompleteCourseFound => 'Tiada Kursus yang Sudah Selesai Dijumpai';
+
+  @override
+  String get searchComplete => 'Pencarian Selesai';
+
+  @override
+  String get complete => 'Selesai';
+
+  @override
+  String get createLearning => 'Cipta Pembelajaran';
+
+  @override
+  String get addLesson => 'Tambah Pelajaran';
+
+  @override
+  String get lesson => 'Pelajaran';
+
+  @override
+  String get courseDescription => 'Penerangan Kursus';
+
+  @override
+  String get courseTittle => 'Tajuk Kursus';
+
+  @override
+  String get changeImage => 'Tukar Gambar';
+
+  @override
+  String get selectCoverImage => 'Pilih Gambar hadapan';
+
+  @override
+  String get coverImage => 'Gambar dibahangian Hadapan';
+
+  @override
+  String get save => 'Simpan';
+
+  @override
+  String get createNewLearning => 'Cipta Pembelajaran Baharu';
+
+  @override
+  String get yourProgress => 'Kemajuan Anda';
+
+  @override
+  String get noContentAvailable => 'Tiada Kandungan yang Tersedia';
+
+  @override
+  String get completed => 'Selesai';
+
+  @override
+  String get pleaseSignToTrackProgress => 'Tolong Tanda untuk Menjejaki Kemajuan';
+
+  @override
+  String get lessonDocument => 'Dokumen Pelajaran';
+
+  @override
+  String get inProgress => 'Dalam Proses';
+
+  @override
+  String get seeAll => 'Lihat Semua sekali';
+
+  @override
+  String get goIt => 'Faham';
+
+  @override
   String get quickaction => 'Aksi Segera';
 
   @override
@@ -67,6 +163,9 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get mydocument => 'Dokumen\nSaya';
+
+  @override
+  String get mydocument1 => 'Dokumen Saya';
 
   @override
   String get meettheteam => 'Ahli Pasukan';
@@ -183,6 +282,12 @@ class AppLocalizationsMs extends AppLocalizations {
   String get addEvent => 'Tambah Acara';
 
   @override
+  String get canteenOverview => 'Kantin Keseluruhan';
+
+  @override
+  String get availableStall => 'Gerai ynag Tersedia';
+
+  @override
   String get addNewTask => 'Tamnah Tugasan Baru';
 
   @override
@@ -256,6 +361,141 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get upload => 'Muat Naik';
+
+  @override
+  String get addNew => 'Tambah Baru';
+
+  @override
+  String get noTaskYet => 'Tiada Tugas Lagi';
+
+  @override
+  String get tapToAddYourFirstTask => 'Tekan \'+\' untuk tambah tugasan pertama anda';
+
+  @override
+  String get incompleteTask => 'Tugasan Belum Selesai';
+
+  @override
+  String get completedTask => 'Tugasan Selesai';
+
+  @override
+  String get selectAProjectToViewItTask => 'Pilih projek untuk melihat tugasan didalamnya';
+
+  @override
+  String get noProjectYet => 'Tiada project lagi';
+
+  @override
+  String get confirmDelete => 'Hapuskan Sah';
+
+  @override
+  String get taptocreateyourfirstproject => 'Tekan \'+\' untuk tambah project pertama anda';
+
+  @override
+  String get noEventsFound => 'Tiada Acara dijumpai';
+
+  @override
+  String get welcometoTNB => 'Selamat Datang Ke TNB,';
+
+  @override
+  String get selectYourMounthAndYear => 'Pilih bulan dan tahun';
+
+  @override
+  String get qrcode => 'Kod QR';
+
+  @override
+  String get scanAUserQRCode => 'Imbas Kod QR Pengguna';
+
+  @override
+  String get grantPermission => 'Memberi Kebenaran';
+
+  @override
+  String get cameraPermissionIsRequire => 'Kebenaran kamera diperlukan';
+
+  @override
+  String get contactPermissionIsRequire => 'Kebenaran kenalan diperlukan';
+
+  @override
+  String get saveToPhone => 'Simpan didalm telefon';
+
+  @override
+  String get close => 'Tutup';
+
+  @override
+  String get userFound => 'Pegguna dijumpai';
+
+  @override
+  String get usernotfound => 'Pegguna Tidak Dijumpai';
+
+  @override
+  String get youcantscanyourownqr => 'Anda tidak boleh mengimbsa kod QR sendiri';
+
+  @override
+  String get noName => 'Tiada Nama';
+
+  @override
+  String get notspecified => 'Tidak ditentukan';
+
+  @override
+  String get saving => 'Menyimpan...';
+
+  @override
+  String get copyAll => 'Salin Semua';
+
+  @override
+  String get openinApp => 'Buka didalam Applikasi';
+
+  @override
+  String get viewfullprofileinsideapp => 'Lihat profil penuh didalam applikasi';
+
+  @override
+  String get shareContact => 'Sebar kenalan';
+
+  @override
+  String get sharevcardtextorsimpleinfo => 'sebar v-card teks atau info mudah';
+
+  @override
+  String get copy => 'Salin semula';
+
+  @override
+  String get manageAppPermission => 'Urus Kebenaran Applikasi';
+
+  @override
+  String get devicePermissions => 'Kebenaran Peranti';
+
+  @override
+  String get openSettings => 'Buka Tetapan';
+
+  @override
+  String get lodingProfile => 'Memuatkan profil...';
+
+  @override
+  String get fullName => 'Nama Penuh';
+
+  @override
+  String get enterYourFullName => 'Masukkan nama penuh anda';
+
+  @override
+  String get username => 'Nama Pengguna';
+
+  @override
+  String get enterYourUsername => 'Masukkan nama pengguna anda';
+
+  @override
+  String get phoneNumber => 'Nombor Telefon';
+
+  @override
+  String get enterYourPhoneNumber => 'Masukkan nombor telefon anda';
+
+  @override
+  String get createdAt => 'Dicipta Pada';
+
+  @override
+  String get identityCard => 'Kad Pengenalan (IC)';
+
+  @override
+  String get drivingLicense => 'Lesen Memandu';
+
+  @override
+  String get certificate => 'Sijil';
 
   @override
   String get perksandfacilities => 'Faedah & Kemudahan';

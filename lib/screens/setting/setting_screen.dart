@@ -112,7 +112,7 @@ class _SettingScreenState extends State<SettingScreen> {
         style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: Color.fromRGBO(224, 124, 124, 1),
+          color: Color(0xFF107966),
         ),
       ),
     );

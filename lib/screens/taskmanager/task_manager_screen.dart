@@ -34,7 +34,7 @@ class TaskManagerScreen extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color.fromRGBO(224, 124, 124, 1),
+                color: const Color(0xFF107966),
                 borderRadius: BorderRadius.circular(6),
               ),
               alignment: Alignment.center,
@@ -88,19 +88,19 @@ class TaskManagerScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             DocumentCard(
-              title: 'Identity Card (IC)',
+              title: (AppLocalizations.of(context)!.identityCard),
               subtitle: (AppLocalizations.of(context)!.uploadRequired),
               subtitleColor: hintColor,
             ),
             const SizedBox(height: 12),
             DocumentCard(
-              title: 'Driving License',
+              title: (AppLocalizations.of(context)!.drivingLicense),
               subtitle: (AppLocalizations.of(context)!.optional),
               subtitleColor: hintColor,
             ),
             const SizedBox(height: 12),
             DocumentCard(
-              title: 'Certificates',
+              title: (AppLocalizations.of(context)!.certificate),
               subtitle: (AppLocalizations.of(context)!.optional),
               subtitleColor: hintColor,
             ),
@@ -298,7 +298,7 @@ class _DocumentCardState extends State<DocumentCard> {
             ),
             // Actions (Upload/View/Edit/Remove)
             if (_isUploading)
-              Text('Uploading...', style: TextStyle(color: Colors.blue[600]))
+              Text((AppLocalizations.of(context)!.uploading), style: TextStyle(color: Colors.blue[600]))
             else if (hasFile)
               Row(
                 mainAxisSize: MainAxisSize.min,
@@ -316,7 +316,7 @@ class _DocumentCardState extends State<DocumentCard> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         visualDensity: VisualDensity.compact,
                       ),
-                      child: Text('View', style: TextStyle(fontSize: 13, color: hintColor)),
+                      child: Text((AppLocalizations.of(context)!.view), style: TextStyle(fontSize: 13, color: hintColor)),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -343,9 +343,9 @@ class _DocumentCardState extends State<DocumentCard> {
                         value: 'remove',
                         child: Row(
                           children: [
-                            Icon(Icons.delete, size: 20, color: Colors.red),
+                            Icon(Icons.delete, size: 20, color: Color(0xFF107966)),
                             const SizedBox(width: 8),
-                            Text('Remove', style: TextStyle(color: textColor)),
+                            Text((AppLocalizations.of(context)!.remove), style: TextStyle(color: textColor)),
                           ],
                         ),
                       ),

@@ -30,7 +30,7 @@ class _LanguageTranslationScreenState extends State<LanguageTranslationScreen> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color.fromRGBO(224, 124, 124, 1),
+                  color: const Color(0xFF107966),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 alignment: Alignment.center,
@@ -99,7 +99,7 @@ class _LanguageTranslationScreenState extends State<LanguageTranslationScreen> {
         style: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: Color.fromRGBO(224, 124, 124, 1),
+          color: Color(0xFF107966),
         ),
       ),
     );

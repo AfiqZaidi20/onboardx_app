@@ -57,7 +57,7 @@ class _PerksFacilitiesScreenState extends State<PerksFacilitiesScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color.fromRGBO(224, 124, 124, 1),
+                color: const Color(0xFF107966),
                 borderRadius: BorderRadius.circular(6),
               ),
               alignment: Alignment.center,

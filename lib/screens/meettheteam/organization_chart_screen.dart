@@ -15,7 +15,7 @@ class _OrganizationChartScreenState extends State<OrganizationChartScreen> {
   String _filter = 'All';
   bool _compact = false;
   bool _showScrollTop = false;
-  final Color _accentColor = const Color.fromRGBO(224, 124, 124, 1);
+  final Color _accentColor = const Color(0xFF107966);
 
   @override
   void initState() {
@@ -619,7 +619,7 @@ class _OrganizationChartScreenState extends State<OrganizationChartScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Organization Chart Guide',
+                (AppLocalizations.of(context)!.organizationChart),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -643,8 +643,8 @@ class _OrganizationChartScreenState extends State<OrganizationChartScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Got It',
+                  child: Text(
+                    (AppLocalizations.of(context)!.goIt),
                     style: TextStyle(color: Colors.white),
                   ),
                 ),

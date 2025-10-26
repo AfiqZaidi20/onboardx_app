@@ -46,7 +46,7 @@ class _AppBarMyJourneyState extends State<AppBarMyJourney> with SingleTickerProv
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color.fromRGBO(224, 124, 124, 1),
+                color: const Color(0xFF107966),
                 borderRadius: BorderRadius.circular(6),
               ),
               alignment: Alignment.center,
@@ -60,8 +60,8 @@ class _AppBarMyJourneyState extends State<AppBarMyJourney> with SingleTickerProv
         ),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: const Color.fromRGBO(224, 124, 124, 1),
-          labelColor: const Color.fromRGBO(224, 124, 124, 1),
+          indicatorColor: const Color(0xFF107966),
+          labelColor: const Color(0xFF107966),
           unselectedLabelColor: Colors.grey,
           labelStyle: const TextStyle(fontWeight: FontWeight.bold),
           tabs: [

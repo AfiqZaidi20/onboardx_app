@@ -329,7 +329,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
         
         return AlertDialog(
           backgroundColor: isDarkMode ? Colors.grey[900] : Colors.white,
-          title: Text('Select Month and Year', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+          title: Text((AppLocalizations.of(context)!.selectYourMounthAndYear), style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
           content: SizedBox(
             width: double.maxFinite,
             child: Column(
@@ -731,7 +731,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Welcome to TNB,', style: TextStyle(fontSize: 16, color: isDarkMode ? Colors.grey[400] : Colors.grey)),
+                      Text((AppLocalizations.of(context)!.welcometoTNB), style: TextStyle(fontSize: 16, color: isDarkMode ? Colors.grey[400] : Colors.grey)),
                       const SizedBox(height: 4),
                       Text(
                         _userData?['username'] ?? 'User',
@@ -814,7 +814,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : (isDarkMode ? Colors.white : Colors.black))
                         ),
                         if (hasEvents)
-                          Container(width: 6, height: 6, margin: const EdgeInsets.only(top: 4), decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle)),
+                          Container(width: 6, height: 6, margin: const EdgeInsets.only(top: 4), decoration: const BoxDecoration(color: Color(0xFF107966), shape: BoxShape.circle)),
                       ],
                     ),
                   ),
@@ -838,7 +838,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
             child: _events.isEmpty
                 ? Center(
                     child: Text(
-                      'No events found',
+                      (AppLocalizations.of(context)!.noEventsFound),
                       style: TextStyle(color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                     ),
                   )
@@ -859,7 +859,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
                             key: Key(event['id']),
                             direction: DismissDirection.endToStart,
                             background: Container(
-                              color: Colors.red,
+                              color: Color(0xFF107966),
                               alignment: Alignment.centerRight,
                               padding: const EdgeInsets.only(right: 20),
                               child: const Icon(Icons.delete, color: Colors.white),
@@ -889,7 +889,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddEventDialog,
-        backgroundColor: const Color.fromRGBO(224, 124, 124, 1),
+        backgroundColor: const Color(0xFF107966),
         child: const Icon(Icons.add, color: Colors.white),
       ),
     );

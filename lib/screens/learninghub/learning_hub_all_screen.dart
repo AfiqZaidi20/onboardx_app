@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:onboardx_app/l10n/app_localizations.dart';
+import 'package:onboardx_app/services/supabase_service.dart';
 
 import 'learning_hub_detail_screen.dart';
 
@@ -12,27 +12,129 @@ class LearningHubAllScreen extends StatefulWidget {
   State<LearningHubAllScreen> createState() => _LearningHubAllScreenState();
 }
 
-class _LearningHubAllScreenState extends State<LearningHubAllScreen> {
+class _LearningHubAllScreenState extends State<LearningHubAllScreen> with WidgetsBindingObserver {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  List<Map<String, dynamic>> _allCourses = [];
+  bool _isLoading = true;
+
+  final SupabaseService _supabaseService = SupabaseService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    WidgetsBinding.instance.addObserver(this);
+    _loadLearnings();
   }
 
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadLearnings();
+    }
   }
 
   void _onSearchChanged() {
     setState(() {
       _searchQuery = _searchController.text;
     });
+  }
+
+  Future<void> _loadLearnings() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final user = _auth.currentUser;
+      List<Map<String, dynamic>> learnings = [];
+
+      if (user != null) {
+        // Load learnings with user progress
+        learnings = await _supabaseService.getLearningsWithProgress(user.uid);
+      } else {
+        // Load all learnings without progress
+        final response = await _supabaseService.client
+            .from('learnings')
+            .select('''
+            *,
+            lessons:lessons(*)
+          ''')
+            .order('created_at', ascending: false);
+
+        learnings = List<Map<String, dynamic>>.from(response);
+      }
+
+      // Process learnings data
+      List<Map<String, dynamic>> processedCourses = [];
+      
+      for (final learning in learnings) {
+        final coverImagePath = learning['cover_image_path'] as String?;
+        String imageUrl = 'https://cdn-icons-png.flaticon.com/512/888/888883.png';
+        
+        if (coverImagePath != null && coverImagePath.isNotEmpty) {
+          imageUrl = _supabaseService.getPublicUrl('learning-content', coverImagePath);
+        }
+
+        double progress = 0.0;
+
+        if (user != null) {
+          // Calculate progress from learning_progress
+          final progressData = learning['progress'] as List?;
+          if (progressData != null && progressData.isNotEmpty) {
+            final progressItem = progressData.first as Map<String, dynamic>;
+            progress = (progressItem['progress_percentage'] as num?)?.toDouble() ?? 0.0;
+          }
+        }
+
+        processedCourses.add({
+          'id': learning['id'],
+          'title': learning['title'] ?? 'Untitled',
+          'description': learning['description'] ?? '',
+          'imageUrl': imageUrl,
+          'progress': progress,
+          'raw': learning,
+          'total_lessons': learning['total_lessons'] ?? 0,
+        });
+      }
+
+      setState(() {
+        _allCourses = processedCourses;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading learnings: $e');
+      setState(() {
+        _isLoading = false;
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading learnings: $e')),
+      );
+    }
+  }
+
+  List<Map<String, dynamic>> _getFilteredCourses() {
+    if (_searchQuery.isEmpty) {
+      return _allCourses;
+    }
+
+    final query = _searchQuery.trim().toLowerCase();
+    return _allCourses.where((course) {
+      final title = course['title'].toString().toLowerCase();
+      final description = course['description'].toString().toLowerCase();
+      return title.contains(query) || description.contains(query);
+    }).toList();
   }
 
   @override
@@ -45,18 +147,19 @@ class _LearningHubAllScreenState extends State<LearningHubAllScreen> {
     final Color hintColor = isDarkMode ? Colors.grey[400]! : Colors.grey[600]!;
     final Color searchBackground = isDarkMode ? Colors.grey[800]! : Colors.grey[200]!;
 
+    final filteredCourses = _getFilteredCourses();
+
     return Scaffold(
       backgroundColor: scaffoldBackground,
       appBar: AppBar(
         title: Text(
-          (AppLocalizations.of(context)!.learninghub1),
+          (AppLocalizations.of(context)!.allLearning),
           style: TextStyle(color: textColor),
         ),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
         foregroundColor: appBarIconColor,
-        automaticallyImplyLeading: false,
         leading: Center(
           child: InkWell(
             borderRadius: BorderRadius.circular(8),
@@ -65,7 +168,7 @@ class _LearningHubAllScreenState extends State<LearningHubAllScreen> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color.fromRGBO(224, 124, 124, 1),
+                color: const Color(0xFF107966),
                 borderRadius: BorderRadius.circular(6),
               ),
               alignment: Alignment.center,
@@ -90,170 +193,47 @@ class _LearningHubAllScreenState extends State<LearningHubAllScreen> {
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
-                  hintText: (AppLocalizations.of(context)!.searchNow),
+                  hintText: 'Search All Learning...',
                   hintStyle: TextStyle(color: hintColor),
                   prefixIcon: Icon(Icons.search, color: hintColor),
                   border: InputBorder.none,
                   contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                      const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
                 ),
                 style: TextStyle(color: textColor),
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  (AppLocalizations.of(context)!.allLearning),
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12.0),
           Expanded(
-            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-              stream: FirebaseFirestore.instance
-                  .collection('learnings')
-                  .orderBy('createdAt', descending: true)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error loading learnings: ${snapshot.error}'),
-                  );
-                }
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final docs = snapshot.data?.docs ?? [];
-                List<Map<String, dynamic>> allCourses = docs.map((d) {
-                  final data = d.data();
-                  return {
-                    'id': d.id,
-                    'title': data['title'] ?? 'Untitled',
-                    'description': data['description'] ?? '',
-                    'imageUrl': data['coverImageUrl'],
-                    'raw': data,
-                  };
-                }).toList();
-
-                final query = _searchQuery.trim().toLowerCase();
-                List<Map<String, dynamic>> filtered = allCourses;
-                if (query.isNotEmpty) {
-                  filtered = allCourses.where((course) {
-                    final title = course['title'].toLowerCase();
-                    final description = course['description'].toLowerCase();
-                    return title.contains(query) || description.contains(query);
-                  }).toList();
-                }
-
-                final user = FirebaseAuth.instance.currentUser;
-                if (user == null) {
-                  final allCoursesFiltered = filtered.map((course) {
-                    return {
-                      ...course,
-                      'progress': 0.0,
-                      'category': 'notstarted',
-                    };
-                  }).toList();
-                  return _buildCourseList(allCoursesFiltered, cardColor, textColor);
-                } else {
-                  final userProgFutures = filtered.map((course) {
-                    return FirebaseFirestore.instance
-                        .collection('learnings')
-                        .doc(course['id'])
-                        .collection('userProgress')
-                        .doc(user.uid)
-                        .get();
-                  }).toList();
-
-                  return FutureBuilder<List<DocumentSnapshot<Map<String, dynamic>>>>(
-                    future: Future.wait(userProgFutures),
-                    builder: (context, progSnapshot) {
-                      if (progSnapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if (progSnapshot.hasError) {
-                        final allCoursesFiltered = filtered.map((course) {
-                          return {
-                            ...course,
-                            'progress': 0.0,
-                            'category': 'notstarted',
-                          };
-                        }).toList();
-                        return _buildCourseList(allCoursesFiltered, cardColor, textColor);
-                      }
-
-                      final progDocs = progSnapshot.data ?? [];
-                      List<Map<String, dynamic>> combined = [];
-                      for (int i = 0; i < filtered.length; i++) {
-                        final course = filtered[i];
-                        final raw = course['raw'];
-                        final progDoc = progDocs[i];
-                        double displayProgress = 0.0;
-
-                        if (progDoc.exists) {
-                          final data = progDoc.data() ?? {};
-                          final completed = data['completedLessons'];
-                          int completedCount = 0;
-                          if (completed is List) completedCount = completed.length;
-                          else if (completed is int) completedCount = completed;
-
-                          int totalLessons = 0;
-                          if (raw['lessons'] is List) totalLessons = (raw['lessons'] as List).length;
-
-                          if (totalLessons > 0) {
-                            displayProgress = (completedCount / totalLessons).clamp(0.0, 1.0);
-                          }
-                        }
-
-                        combined.add({
-                          ...course,
-                          'progress': displayProgress,
-                        });
-                      }
-
-                      return _buildCourseList(combined, cardColor, textColor);
-                    },
-                  );
-                }
-              },
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                    onRefresh: _loadLearnings,
+                    child: filteredCourses.isEmpty
+                        ? Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40.0),
+                              child: Text(
+                                (AppLocalizations.of(context)!.noCourseFound),
+                                style: TextStyle(fontSize: 18.0, color: Colors.grey),
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
+                            itemCount: filteredCourses.length,
+                            itemBuilder: (context, index) {
+                              return _learningItemCardFromMap(
+                                filteredCourses[index], 
+                                cardColor, 
+                                textColor
+                              );
+                            },
+                          ),
+                  ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildCourseList(List<Map<String, dynamic>> courses, Color cardColor, Color textColor) {
-    if (courses.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 40.0),
-          child: Text(
-            (AppLocalizations.of(context)!.noCourseFound),
-            style: TextStyle(fontSize: 18.0, color: Colors.grey),
-          ),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      itemCount: courses.length,
-      itemBuilder: (context, index) {
-        final course = courses[index];
-        return _learningItemCardFromMap(course, cardColor, textColor);
-      },
     );
   }
 
@@ -276,9 +256,13 @@ class _LearningHubAllScreenState extends State<LearningHubAllScreen> {
               courseDescription: subtitle,
               progress: progress,
               rawData: raw,
+              totalLessons: course['total_lessons'] ?? 0,
             ),
           ),
-        );
+        ).then((_) {
+          // Reload data setelah kembali dari detail screen untuk update progress
+          _loadLearnings();
+        });
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12.0),
@@ -286,7 +270,14 @@ class _LearningHubAllScreenState extends State<LearningHubAllScreen> {
         decoration: BoxDecoration(
           color: cardColor,
           borderRadius: BorderRadius.circular(12.0),
-          boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.3), spreadRadius: 1, blurRadius: 6, offset: const Offset(0, 3))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3), 
+              spreadRadius: 1, 
+              blurRadius: 6, 
+              offset: const Offset(0, 3)
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,13 +291,37 @@ class _LearningHubAllScreenState extends State<LearningHubAllScreen> {
                     width: 60,
                     height: 60,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 60,
-                      height: 60,
-                      color: Colors.grey[100],
-                      alignment: Alignment.center,
-                      child: const Icon(Icons.description, color: Colors.grey),
-                    ),
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        width: 60,
+                        height: 60,
+                        color: Colors.grey[200],
+                        alignment: Alignment.center,
+                        child: const CircularProgressIndicator(),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        width: 60,
+                        height: 60,
+                        color: Colors.grey[100],
+                        alignment: Alignment.center,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.broken_image, color: Colors.grey, size: 24),
+                            Text(
+                              (AppLocalizations.of(context)!.noImage),
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(width: 16.0),
@@ -314,9 +329,24 @@ class _LearningHubAllScreenState extends State<LearningHubAllScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0, color: textColor)),
+                      Text(
+                        title, 
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold, 
+                          fontSize: 18.0, 
+                          color: textColor
+                        ),
+                      ),
                       const SizedBox(height: 6.0),
-                      Text(subtitle, style: TextStyle(color: Colors.grey[600], fontSize: 14.0)),
+                      Text(
+                        subtitle, 
+                        style: TextStyle(
+                          color: Colors.grey[600], 
+                          fontSize: 14.0
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ],
                   ),
                 ),

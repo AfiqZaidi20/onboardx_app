@@ -143,7 +143,7 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
   void _goBack() {
     setState(() {
       _currentParentFolder = null;
-      _currentPath = 'My Document';
+      _currentPath = (AppLocalizations.of(context)!.mydocument1);
     });
   }
 
@@ -159,19 +159,19 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
         
         return AlertDialog(
           backgroundColor: dialogBackground,
-          title: Text('Create New Folder', style: TextStyle(color: textColor)),
+          title: Text((AppLocalizations.of(context)!.createNewFolder), style: TextStyle(color: textColor)),
           content: TextField(
             controller: controller,
             style: TextStyle(color: textColor),
             decoration: InputDecoration(
-              hintText: 'Folder Name',
+              hintText: (AppLocalizations.of(context)!.folderName),
               hintStyle: TextStyle(color: hintColor),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: TextStyle(color: hintColor)),
+              child: Text((AppLocalizations.of(context)!.cancel), style: TextStyle(color: hintColor)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -182,7 +182,7 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
                   _showSnackbar('Folder "${controller.text}" created.');
                 }
               },
-              child: const Text('Create'),
+              child: Text((AppLocalizations.of(context)!.create)),
             ),
           ],
         );
@@ -259,15 +259,15 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
           children: [
             ListTile(
               leading: Icon(Icons.edit, color: textColor),
-              title: Text('Edit', style: TextStyle(color: textColor)),
+              title: Text((AppLocalizations.of(context)!.edit), style: TextStyle(color: textColor)),
               onTap: () {
                 Navigator.pop(context);
                 _editFile(doc);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: Text('Remove', style: TextStyle(color: textColor)),
+              leading: const Icon(Icons.delete, color: Color(0xFF107966)),
+              title: Text((AppLocalizations.of(context)!.remove), style: TextStyle(color: textColor)),
               onTap: () {
                 Navigator.pop(context);
                 _removeFile(doc);
@@ -293,15 +293,15 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
           children: [
             ListTile(
               leading: Icon(Icons.drive_file_move_outlined, color: textColor),
-              title: Text('Move', style: TextStyle(color: textColor)),
+              title: Text((AppLocalizations.of(context)!.move), style: TextStyle(color: textColor)),
               onTap: () {
                 Navigator.pop(context);
                 _showSnackbar('Move functionality coming soon!');
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: Text('Delete', style: TextStyle(color: textColor)),
+              leading: const Icon(Icons.delete, color: Color(0xFF107966)),
+              title: Text((AppLocalizations.of(context)!.delete), style: TextStyle(color: textColor)),
               onTap: () {
                 Navigator.pop(context);
                 _deleteFolder(folder);
@@ -476,19 +476,19 @@ class DocumentCard extends StatelessWidget {
         icon = Icons.check_circle;
         iconColor = Colors.green;
         subtitle = document.name;
-        buttonText = 'View';
+        buttonText = (AppLocalizations.of(context)!.view);
         break;
       case DocumentStatus.uploading:
         icon = Icons.cloud_upload;
         iconColor = Colors.blue;
-        subtitle = 'Uploading...';
-        buttonText = 'Uploading';
+        subtitle = (AppLocalizations.of(context)!.uploading1);
+        buttonText = (AppLocalizations.of(context)!.uploading);
         break;
       case DocumentStatus.pending:
         icon = Icons.add_circle;
         iconColor = hintColor;
         subtitle = document.name;
-        buttonText = 'Upload';
+        buttonText = (AppLocalizations.of(context)!.upload);
         break;
     }
 

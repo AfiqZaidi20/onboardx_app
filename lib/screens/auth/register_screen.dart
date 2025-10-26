@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:onboardx_app/screens/auth/login_screen.dart';
 import 'package:onboardx_app/services/auth_service.dart';
+import 'package:onboardx_app/services/supabase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -13,13 +13,13 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _firebaseAuth = AuthService();
+  final _supabaseService = SupabaseService();
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _workUnitController = TextEditingController();
-  final TextEditingController _workplaceController = TextEditingController();
+  final TextEditingController _teamController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
@@ -28,20 +28,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-
-  void _clearAllFields() {
-    _nameController.clear();
-    _usernameController.clear();
-    _emailController.clear();
-    _phoneController.clear();
-    _workUnitController.clear();
-    _workplaceController.clear();
-    _passwordController.clear();
-    _confirmPasswordController.clear();
-    setState(() {
-      _selectedWorkType = null;
-    });
-  }
+  bool _isValidTeam = false;
+  Map<String, dynamic>? _selectedTeam;
 
   final List<String> _workTypes = [
     'Pre-staff',
@@ -53,9 +41,68 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // Add form key
   final _formKey = GlobalKey<FormState>();
 
+  void _clearAllFields() {
+    _nameController.clear();
+    _usernameController.clear();
+    _emailController.clear();
+    _phoneController.clear();
+    _teamController.clear();
+    _passwordController.clear();
+    _confirmPasswordController.clear();
+    setState(() {
+      _selectedWorkType = null;
+      _isValidTeam = false;
+      _selectedTeam = null;
+    });
+  }
+
+  // Di RegisterScreen, perbaiki method _validateTeam:
+  Future<void> _validateTeam() async {
+    if (_teamController.text.isEmpty) {
+      setState(() {
+        _isValidTeam = false;
+        _selectedTeam = null;
+      });
+      return;
+    }
+
+    try {
+      // Gunakan getTeamByNoTeam bukan getTeamByTeamId
+      final team =
+          await _supabaseService.getTeamByNoTeam(_teamController.text.trim());
+      if (team != null) {
+        setState(() {
+          _isValidTeam = true;
+          _selectedTeam = team;
+        });
+      } else {
+        setState(() {
+          _isValidTeam = false;
+          _selectedTeam = null;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isValidTeam = false;
+        _selectedTeam = null;
+      });
+    }
+  }
+
   void _register() async {
     // Validate form
     if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    // Validate team
+    if (!_isValidTeam || _selectedTeam == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid team number'),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
@@ -71,22 +118,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (user != null) {
-        // Save user data to Firestore
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        // Save user data to Supabase
+        final userData = {
           'uid': user.uid,
-          'fullName': _nameController.text,
+          'full_name': _nameController.text,
           'username': _usernameController.text,
           'email': _emailController.text,
-          'phoneNumber': _phoneController.text,
-          'workUnit': _workUnitController.text,
-          'workplace': _workplaceController.text,
-          'workType': _selectedWorkType,
-          'emailVerified': false, // Add email verification status
-          'createdAt': FieldValue.serverTimestamp(),
-        });
+          'phone_number': _phoneController.text,
+          'work_type': _selectedWorkType,
+          'team_id': _selectedTeam!['id'],
+          'profile_image': null,
+          'created_at': DateTime.now().toUtc().toIso8601String(),
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        };
+
+        await _supabaseService.createUser(userData);
 
         // Send email verification
         await user.sendEmailVerification();
+
+        // Sign out the user to force login after verification
+        await _firebaseAuth.signOut();
 
         // Clear all fields after successful registration
         _clearAllFields();
@@ -151,24 +203,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SnackBar(
                         content: Text('Verification email resent!'),
                         backgroundColor: Colors.green,
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Error resending email: ${e.toString()}'),
-                        backgroundColor: Colors.red,
                       ),
                     );
                   }
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error resending email: ${e.toString()}'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -177,14 +229,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final bool isDarkMode = theme.brightness == Brightness.dark;
 
     // Colors that adapt to theme
-    final primaryColor = isDarkMode 
-        ? const Color.fromRGBO(180, 100, 100, 1) // Darker pink for dark mode
+    final primaryColor = isDarkMode
+        ? const Color.fromRGBO(180, 100, 100, 1)
         : const Color.fromRGBO(224, 124, 124, 1);
-        
+
     final cardColor = theme.cardColor;
     final textColor = theme.textTheme.bodyLarge?.color;
     final hintColor = theme.hintColor;
-    final scaffoldBackground = theme.scaffoldBackgroundColor;
+    const successColor = Colors.green;
+    const errorColor = Colors.red;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -196,10 +249,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: const AssetImage("assets/images/background_Splash.jpg"),
+                  image:
+                      const AssetImage("assets/images/background_Splash.jpg"),
                   fit: BoxFit.cover,
-                  colorFilter: isDarkMode 
-                      ? ColorFilter.mode(Colors.black.withOpacity(0.7), BlendMode.darken)
+                  colorFilter: isDarkMode
+                      ? ColorFilter.mode(
+                          Colors.black.withOpacity(0.7), BlendMode.darken)
                       : null,
                 ),
               ),
@@ -265,7 +320,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     children: [
                       // Spacer to push content below top semicircle
                       SizedBox(height: size.height * 0.22),
-                      
+
                       // Register Form Card
                       Container(
                         padding: const EdgeInsets.all(24.0),
@@ -311,7 +366,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   labelText: "Full Name",
                                   labelStyle: TextStyle(color: hintColor),
                                   border: const UnderlineInputBorder(),
-                                  prefixIcon: Icon(Icons.person, color: hintColor),
+                                  prefixIcon:
+                                      Icon(Icons.person, color: hintColor),
                                 ),
                               ),
                               const SizedBox(height: 15),
@@ -324,7 +380,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter your username';
                                   }
-                                  if (value.trim().split(RegExp(r'\s+')).length > 12) {
+                                  if (value
+                                          .trim()
+                                          .split(RegExp(r'\s+'))
+                                          .length >
+                                      12) {
                                     return 'Username must be max 12 words';
                                   }
                                   return null;
@@ -333,7 +393,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   labelText: "Username",
                                   labelStyle: TextStyle(color: hintColor),
                                   border: const UnderlineInputBorder(),
-                                  prefixIcon: Icon(Icons.person_outline, color: hintColor),
+                                  prefixIcon: Icon(Icons.person_outline,
+                                      color: hintColor),
                                 ),
                               ),
                               const SizedBox(height: 15),
@@ -346,7 +407,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter your email';
                                   }
-                                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                  if (!RegExp(
+                                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                      .hasMatch(value)) {
                                     return 'Please enter a valid email';
                                   }
                                   return null;
@@ -355,7 +418,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   labelText: "Email",
                                   labelStyle: TextStyle(color: hintColor),
                                   border: const UnderlineInputBorder(),
-                                  prefixIcon: Icon(Icons.email, color: hintColor),
+                                  prefixIcon:
+                                      Icon(Icons.email, color: hintColor),
                                 ),
                                 keyboardType: TextInputType.emailAddress,
                               ),
@@ -369,7 +433,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter your phone number';
                                   }
-                                  if (!RegExp(r'^[0-9]{10,}$').hasMatch(value)) {
+                                  if (!RegExp(r'^[0-9]{10,}$')
+                                      .hasMatch(value)) {
                                     return 'Please enter a valid phone number';
                                   }
                                   return null;
@@ -378,48 +443,74 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   labelText: "Phone Number",
                                   labelStyle: TextStyle(color: hintColor),
                                   border: const UnderlineInputBorder(),
-                                  prefixIcon: Icon(Icons.phone, color: hintColor),
+                                  prefixIcon:
+                                      Icon(Icons.phone, color: hintColor),
                                 ),
                                 keyboardType: TextInputType.phone,
                               ),
                               const SizedBox(height: 15),
 
-                              // Work Unit
+                              // Team Number dengan validasi real-time
                               TextFormField(
-                                controller: _workUnitController,
+                                controller: _teamController,
                                 style: TextStyle(color: textColor),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your work unit';
-                                  }
-                                  return null;
-                                },
+                                onChanged: (value) => _validateTeam(),
                                 decoration: InputDecoration(
-                                  labelText: "Work Unit",
+                                  labelText: "Team Number",
                                   labelStyle: TextStyle(color: hintColor),
                                   border: const UnderlineInputBorder(),
-                                  prefixIcon: Icon(Icons.business, color: hintColor),
+                                  prefixIcon:
+                                      Icon(Icons.group, color: hintColor),
+                                  suffixIcon: _teamController.text.isNotEmpty
+                                      ? Icon(
+                                          _isValidTeam
+                                              ? Icons.check_circle
+                                              : Icons.error,
+                                          color: _isValidTeam
+                                              ? successColor
+                                              : errorColor,
+                                        )
+                                      : null,
+                                  hintText: "Enter your assigned team number",
                                 ),
                               ),
-                              const SizedBox(height: 15),
-
-                              // Workplace
-                              TextFormField(
-                                controller: _workplaceController,
-                                style: TextStyle(color: textColor),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter your workplace';
-                                  }
-                                  return null;
-                                },
-                                decoration: InputDecoration(
-                                  labelText: "Workplace",
-                                  labelStyle: TextStyle(color: hintColor),
-                                  border: const UnderlineInputBorder(),
-                                  prefixIcon: Icon(Icons.work, color: hintColor),
+                              if (_teamController.text.isNotEmpty &&
+                                  !_isValidTeam)
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    'Invalid team number. Please check with your administrator.',
+                                    style: TextStyle(
+                                      color: errorColor,
+                                      fontSize: 12,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              if (_isValidTeam && _selectedTeam != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Team: ${_selectedTeam!['work_team']}',
+                                        style: const TextStyle(
+                                          color: successColor,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Workplace: ${_selectedTeam!['work_place']}',
+                                        style: const TextStyle(
+                                          color: successColor,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               const SizedBox(height: 15),
 
                               // Work Type Dropdown
@@ -431,14 +522,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   labelText: "Work Type",
                                   labelStyle: TextStyle(color: hintColor),
                                   border: const UnderlineInputBorder(),
-                                  prefixIcon: Icon(Icons.category, color: hintColor),
+                                  prefixIcon:
+                                      Icon(Icons.category, color: hintColor),
                                 ),
                                 isExpanded: true,
-                                hint: Text("Select work type", style: TextStyle(color: hintColor)),
+                                hint: Text("Select work type",
+                                    style: TextStyle(color: hintColor)),
                                 items: _workTypes.map((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,
-                                    child: Text(value, style: TextStyle(color: textColor)),
+                                    child: Text(value,
+                                        style: TextStyle(color: textColor)),
                                   );
                                 }).toList(),
                                 onChanged: (String? newValue) {
@@ -464,23 +558,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter a password';
                                   }
-                                  // Check minimum 12 characters
                                   if (value.length < 12) {
                                     return 'Password must be at least 12 characters';
                                   }
-                                  // Check for number
                                   if (!RegExp(r'[0-9]').hasMatch(value)) {
                                     return 'Password must contain at least one number';
                                   }
-                                  // Check for symbol
-                                  if (!RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(value)) {
+                                  if (!RegExp(r'[!@#\$%^&*(),.?":{}|<>]')
+                                      .hasMatch(value)) {
                                     return 'Password must contain at least one symbol';
                                   }
-                                  // Check for uppercase
                                   if (!RegExp(r'[A-Z]').hasMatch(value)) {
                                     return 'Password must contain at least one uppercase letter';
                                   }
-                                  // Check for lowercase
                                   if (!RegExp(r'[a-z]').hasMatch(value)) {
                                     return 'Password must contain at least one lowercase letter';
                                   }
@@ -490,7 +580,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   labelText: "Password",
                                   labelStyle: TextStyle(color: hintColor),
                                   border: const UnderlineInputBorder(),
-                                  prefixIcon: Icon(Icons.lock, color: hintColor),
+                                  prefixIcon:
+                                      Icon(Icons.lock, color: hintColor),
                                   suffixIcon: IconButton(
                                     icon: Icon(
                                       _obscurePassword
@@ -526,7 +617,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   labelText: "Confirm Password",
                                   labelStyle: TextStyle(color: hintColor),
                                   border: const UnderlineInputBorder(),
-                                  prefixIcon: Icon(Icons.lock_outline, color: hintColor),
+                                  prefixIcon: Icon(Icons.lock_outline,
+                                      color: hintColor),
                                   suffixIcon: IconButton(
                                     icon: Icon(
                                       _obscureConfirmPassword
@@ -536,7 +628,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        _obscureConfirmPassword = !_obscureConfirmPassword;
+                                        _obscureConfirmPassword =
+                                            !_obscureConfirmPassword;
                                       });
                                     },
                                   ),
@@ -546,19 +639,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                               // Button Register
                               _isLoading
-                                  ? const Center(child: CircularProgressIndicator())
+                                  ? const Center(
+                                      child: CircularProgressIndicator())
                                   : ElevatedButton(
-                                      onPressed: _register,
+                                      onPressed:
+                                          _isValidTeam ? _register : null,
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: primaryColor,
-                                        padding: const EdgeInsets.symmetric(vertical: 16),
+                                        backgroundColor: _isValidTeam
+                                            ? primaryColor
+                                            : Colors.grey,
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 16),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(30),
+                                          borderRadius:
+                                              BorderRadius.circular(30),
                                         ),
                                       ),
                                       child: const Text(
                                         "Register",
-                                        style: TextStyle(fontSize: 18, color: Colors.white),
+                                        style: TextStyle(
+                                            fontSize: 18, color: Colors.white),
                                       ),
                                     ),
                               const SizedBox(height: 20),
@@ -578,7 +678,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => const LoginScreen(),
+                                          builder: (context) =>
+                                              const LoginScreen(),
                                         ),
                                       );
                                     },
@@ -596,7 +697,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                       ),
-                      
+
                       // Bottom spacer to ensure content doesn't overlap with bottom semicircle
                       SizedBox(height: size.height * 0.25),
                     ],

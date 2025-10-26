@@ -3,7 +3,9 @@ import 'package:onboardx_app/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class UserProfileDetailScreen extends StatelessWidget {
-  const UserProfileDetailScreen({super.key});
+  final Map<String, dynamic> userData;
+
+  const UserProfileDetailScreen({super.key, required this.userData});
 
   // Function to launch email
   _launchEmail(String email) async {
@@ -55,6 +57,12 @@ class UserProfileDetailScreen extends StatelessWidget {
     final Color textColor = Theme.of(context).colorScheme.onBackground;
     final Color dividerColor = isDarkMode ? Colors.grey[700]! : Colors.grey[300]!;
 
+    final String fullName = userData['fullName'] ?? 'N/A';
+    final String position = userData['workType'] ?? 'N/A';
+    final String email = userData['email'] ?? 'N/A';
+    final String phone = userData['phoneNumber'] ?? 'N/A';
+    final String? profileImageUrl = userData['profileImageUrl'];
+
     return Scaffold(
       backgroundColor: scaffoldBackground,
       appBar: AppBar(
@@ -75,7 +83,7 @@ class UserProfileDetailScreen extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: const Color.fromRGBO(224, 124, 124, 1),
+                color: const Color(0xFF107966),
                 borderRadius: BorderRadius.circular(6),
               ),
               alignment: Alignment.center,
@@ -95,7 +103,7 @@ class UserProfileDetailScreen extends StatelessWidget {
           children: [
             // Header
             Text(
-              'User Profile Detail',
+              (AppLocalizations.of(context)!.userProfileDetail),
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -103,31 +111,34 @@ class UserProfileDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            const Center(
+            Center(
               child: CircleAvatar(
                 radius: 50,
-                backgroundColor: Color.fromRGBO(224, 124, 124, 1),
-                child: Icon(
-                  Icons.person,
-                  size: 50,
-                  color: Colors.white,
-                ),
+                backgroundColor: const Color(0xFF107966),
+                backgroundImage: (profileImageUrl != null && profileImageUrl.isNotEmpty) ? NetworkImage(profileImageUrl) : null,
+                child: (profileImageUrl == null || profileImageUrl.isEmpty)
+                    ? const Icon(
+                        Icons.person,
+                        size: 50,
+                        color: Colors.white,
+                      )
+                    : null,
               ),
             ),
             const SizedBox(height: 30),
             
             // Name Section
             _buildProfileSection(
-              title: (AppLocalizations.of(context)!.name),
-              content: 'Datuk Ir. Megat Jalaluddin Bin Megat Hassan',
+              title: 'Name',
+              content: fullName,
               isDarkMode: isDarkMode,
               textColor: textColor,
             ),
             
             // Position Section
             _buildProfileSection(
-              title:(AppLocalizations.of(context)!.position),
-              content: 'President/Ketua Pegawai Eksekutif (CEO)',
+              title: 'Position',
+              content: position,
               isDarkMode: isDarkMode,
               textColor: textColor,
             ),
@@ -135,7 +146,7 @@ class UserProfileDetailScreen extends StatelessWidget {
             // Email Section
             _buildEmailSection(
               title: 'Email',
-              content: 'Ceo@tnb.com.my',
+              content: email,
               isDarkMode: isDarkMode,
               textColor: textColor,
               dividerColor: dividerColor,
@@ -143,8 +154,8 @@ class UserProfileDetailScreen extends StatelessWidget {
             
             // Phone Section
             _buildPhoneSection(
-              title: (AppLocalizations.of(context)!.phoneno),
-              content: '+60 00000000000',
+              title: 'Phone',
+              content: phone,
               isDarkMode: isDarkMode,
               textColor: textColor,
               dividerColor: dividerColor,
@@ -169,7 +180,7 @@ class UserProfileDetailScreen extends StatelessWidget {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color.fromRGBO(224, 124, 124, 1),
+            color: Color(0xFF107966),
           ),
         ),
         const SizedBox(height: 8),
@@ -205,7 +216,7 @@ class UserProfileDetailScreen extends StatelessWidget {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color.fromRGBO(224, 124, 124, 1),
+            color: Color(0xFF107966),
           ),
         ),
         const SizedBox(height: 8),
@@ -251,7 +262,7 @@ class UserProfileDetailScreen extends StatelessWidget {
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color.fromRGBO(224, 124, 124, 1),
+            color: Color(0xFF107966),
           ),
         ),
         const SizedBox(height: 8),

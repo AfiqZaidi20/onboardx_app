@@ -20,7 +20,7 @@ class BenifitsPage extends StatelessWidget {
                   // Back button
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.red[200],
+                      color: Color(0xFF107966),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: IconButton(
@@ -89,7 +89,7 @@ class BenifitsPage extends StatelessWidget {
             Expanded(
               child: Container(
                 width: double.infinity,
-                color: Colors.red[300],
+                color: Color(0xFF107966),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 child: ListView(

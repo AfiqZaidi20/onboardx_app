@@ -197,6 +197,198 @@ abstract class AppLocalizations {
   /// **'Something went wrong!'**
   String get somethingWentWrong;
 
+  /// No description provided for @folderName.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder Name'**
+  String get folderName;
+
+  /// No description provided for @create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// No description provided for @view.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get view;
+
+  /// No description provided for @uploading1.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading...'**
+  String get uploading1;
+
+  /// No description provided for @uploading.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading'**
+  String get uploading;
+
+  /// No description provided for @move.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get move;
+
+  /// No description provided for @openingMapsApplication.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening Maps Application'**
+  String get openingMapsApplication;
+
+  /// No description provided for @openInMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Open In Maps'**
+  String get openInMaps;
+
+  /// No description provided for @noImage.
+  ///
+  /// In en, this message translates to:
+  /// **'No Image'**
+  String get noImage;
+
+  /// No description provided for @noCompleteCourseFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No Complete Course Found'**
+  String get noCompleteCourseFound;
+
+  /// No description provided for @searchComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Complete'**
+  String get searchComplete;
+
+  /// No description provided for @complete.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete'**
+  String get complete;
+
+  /// No description provided for @createLearning.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Learning'**
+  String get createLearning;
+
+  /// No description provided for @addLesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Lesson'**
+  String get addLesson;
+
+  /// No description provided for @lesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson'**
+  String get lesson;
+
+  /// No description provided for @courseDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Course Description'**
+  String get courseDescription;
+
+  /// No description provided for @courseTittle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cousre Tittle'**
+  String get courseTittle;
+
+  /// No description provided for @changeImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Image'**
+  String get changeImage;
+
+  /// No description provided for @selectCoverImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Cover Image'**
+  String get selectCoverImage;
+
+  /// No description provided for @coverImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover Image'**
+  String get coverImage;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @createNewLearning.
+  ///
+  /// In en, this message translates to:
+  /// **'Create New Learning'**
+  String get createNewLearning;
+
+  /// No description provided for @yourProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Progress'**
+  String get yourProgress;
+
+  /// No description provided for @noContentAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No Content Available'**
+  String get noContentAvailable;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
+  /// No description provided for @pleaseSignToTrackProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Please Sign to Track Progress'**
+  String get pleaseSignToTrackProgress;
+
+  /// No description provided for @lessonDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson Document'**
+  String get lessonDocument;
+
+  /// No description provided for @inProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'In Progress'**
+  String get inProgress;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See All'**
+  String get seeAll;
+
+  /// No description provided for @goIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Go It'**
+  String get goIt;
+
   /// No description provided for @quickaction.
   ///
   /// In en, this message translates to:
@@ -215,6 +407,12 @@ abstract class AppLocalizations {
   /// **'My\nDocument'**
   String get mydocument;
 
+  /// No description provided for @mydocument1.
+  ///
+  /// In en, this message translates to:
+  /// **'My Document'**
+  String get mydocument1;
+
   /// No description provided for @meettheteam.
   ///
   /// In en, this message translates to:
@@ -230,7 +428,7 @@ abstract class AppLocalizations {
   /// No description provided for @taskmanager.
   ///
   /// In en, this message translates to:
-  /// **'Task Manager'**
+  /// **'Task\nManager'**
   String get taskmanager;
 
   /// No description provided for @facilities.
@@ -443,6 +641,18 @@ abstract class AppLocalizations {
   /// **'Add Event'**
   String get addEvent;
 
+  /// No description provided for @canteenOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Canteen Overview'**
+  String get canteenOverview;
+
+  /// No description provided for @availableStall.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Stall'**
+  String get availableStall;
+
   /// No description provided for @addNewTask.
   ///
   /// In en, this message translates to:
@@ -592,6 +802,276 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Upload'**
   String get upload;
+
+  /// No description provided for @addNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New'**
+  String get addNew;
+
+  /// No description provided for @noTaskYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No Task Yet'**
+  String get noTaskYet;
+
+  /// No description provided for @tapToAddYourFirstTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \'+\' to add your first task'**
+  String get tapToAddYourFirstTask;
+
+  /// No description provided for @incompleteTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Incomplete Task'**
+  String get incompleteTask;
+
+  /// No description provided for @completedTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed Task'**
+  String get completedTask;
+
+  /// No description provided for @selectAProjectToViewItTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a Project to View it task'**
+  String get selectAProjectToViewItTask;
+
+  /// No description provided for @noProjectYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No Project Yet'**
+  String get noProjectYet;
+
+  /// No description provided for @confirmDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Delete'**
+  String get confirmDelete;
+
+  /// No description provided for @taptocreateyourfirstproject.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \'+\' to add your first project'**
+  String get taptocreateyourfirstproject;
+
+  /// No description provided for @noEventsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No Events Found'**
+  String get noEventsFound;
+
+  /// No description provided for @welcometoTNB.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome To TNB,'**
+  String get welcometoTNB;
+
+  /// No description provided for @selectYourMounthAndYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Select your mounth and year'**
+  String get selectYourMounthAndYear;
+
+  /// No description provided for @qrcode.
+  ///
+  /// In en, this message translates to:
+  /// **'QR Code'**
+  String get qrcode;
+
+  /// No description provided for @scanAUserQRCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a User QR Code'**
+  String get scanAUserQRCode;
+
+  /// No description provided for @grantPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Grant Permission'**
+  String get grantPermission;
+
+  /// No description provided for @cameraPermissionIsRequire.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera permission is required'**
+  String get cameraPermissionIsRequire;
+
+  /// No description provided for @contactPermissionIsRequire.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact permission is required'**
+  String get contactPermissionIsRequire;
+
+  /// No description provided for @saveToPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Save in Telephone'**
+  String get saveToPhone;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @userFound.
+  ///
+  /// In en, this message translates to:
+  /// **'User Found'**
+  String get userFound;
+
+  /// No description provided for @usernotfound.
+  ///
+  /// In en, this message translates to:
+  /// **'User Not Found'**
+  String get usernotfound;
+
+  /// No description provided for @youcantscanyourownqr.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t scan your own QR'**
+  String get youcantscanyourownqr;
+
+  /// No description provided for @noName.
+  ///
+  /// In en, this message translates to:
+  /// **'No Name'**
+  String get noName;
+
+  /// No description provided for @notspecified.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Specified'**
+  String get notspecified;
+
+  /// No description provided for @saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get saving;
+
+  /// No description provided for @copyAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy All'**
+  String get copyAll;
+
+  /// No description provided for @openinApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Open In App'**
+  String get openinApp;
+
+  /// No description provided for @viewfullprofileinsideapp.
+  ///
+  /// In en, this message translates to:
+  /// **'View Full Profile Inside App'**
+  String get viewfullprofileinsideapp;
+
+  /// No description provided for @shareContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Contact'**
+  String get shareContact;
+
+  /// No description provided for @sharevcardtextorsimpleinfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Share V-card text or simple Info'**
+  String get sharevcardtextorsimpleinfo;
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @manageAppPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage App Permissions'**
+  String get manageAppPermission;
+
+  /// No description provided for @devicePermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Permissions'**
+  String get devicePermissions;
+
+  /// No description provided for @openSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get openSettings;
+
+  /// No description provided for @lodingProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading profile...'**
+  String get lodingProfile;
+
+  /// No description provided for @fullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get fullName;
+
+  /// No description provided for @enterYourFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name'**
+  String get enterYourFullName;
+
+  /// No description provided for @username.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get username;
+
+  /// No description provided for @enterYourUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your username'**
+  String get enterYourUsername;
+
+  /// No description provided for @phoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get phoneNumber;
+
+  /// No description provided for @enterYourPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your phone number'**
+  String get enterYourPhoneNumber;
+
+  /// No description provided for @createdAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created At'**
+  String get createdAt;
+
+  /// No description provided for @identityCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity Card (IC)'**
+  String get identityCard;
+
+  /// No description provided for @drivingLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'Driving License'**
+  String get drivingLicense;
+
+  /// No description provided for @certificate.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificates'**
+  String get certificate;
 
   /// No description provided for @perksandfacilities.
   ///

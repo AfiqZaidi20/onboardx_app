@@ -87,7 +87,7 @@ class _ScanQrScreenState extends State<ScanQrScreen>
     if (scannedUid == _auth.currentUser?.uid) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("You can't scan your own QR code")),
+          SnackBar(content: Text((AppLocalizations.of(context)!.youcantscanyourownqr))),
         );
       }
       return;
@@ -114,7 +114,7 @@ class _ScanQrScreenState extends State<ScanQrScreen>
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('User not found')),
+            SnackBar(content: Text((AppLocalizations.of(context)!.usernotfound))),
           );
         }
         _resetScanner();
@@ -136,7 +136,7 @@ class _ScanQrScreenState extends State<ScanQrScreen>
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('User Found'),
+        title: Text((AppLocalizations.of(context)!.userFound)),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -167,7 +167,7 @@ class _ScanQrScreenState extends State<ScanQrScreen>
               Navigator.pop(context);
               _resetScanner();
             },
-            child: const Text('Close'),
+            child: Text((AppLocalizations.of(context)!.close)),
           ),
           // Keep only Save to Phone (no Save to App)
           TextButton(
@@ -175,7 +175,7 @@ class _ScanQrScreenState extends State<ScanQrScreen>
               Navigator.pop(context);
               await _saveContactToPhone(userData);
             },
-            child: const Text('Save to Phone'),
+            child: Text((AppLocalizations.of(context)!.saveToPhone)),
           ),
         ],
       ),
@@ -188,7 +188,7 @@ class _ScanQrScreenState extends State<ScanQrScreen>
       if (!hasPermission) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Contact permission is required')),
+            SnackBar(content: Text((AppLocalizations.of(context)!.contactPermissionIsRequire))),
           );
         }
         _resetScanner();
@@ -257,11 +257,11 @@ class _ScanQrScreenState extends State<ScanQrScreen>
           children: [
             const Icon(Icons.camera_alt, size: 64),
             const SizedBox(height: 16),
-            const Text('Camera permission required'),
+            Text((AppLocalizations.of(context)!.cameraPermissionIsRequire)),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _checkCameraPermission,
-              child: const Text('Grant Permission'),
+              child: Text((AppLocalizations.of(context)!.grantPermission)),
             ),
           ],
         ),
@@ -301,7 +301,7 @@ class _ScanQrScreenState extends State<ScanQrScreen>
           left: 0,
           right: 0,
           child: Text(
-            'Scan a user QR code',
+            (AppLocalizations.of(context)!.scanAUserQRCode),
             textAlign: TextAlign.center,
             style: Theme.of(context)
                 .textTheme
@@ -463,13 +463,13 @@ class _ScanQrScreenState extends State<ScanQrScreen>
     final hintColor = theme.hintColor;
 
     final primaryColor = isDarkMode
-        ? const Color.fromRGBO(180, 100, 100, 1)
-        : const Color.fromRGBO(224, 124, 124, 1);
+        ? const Color(0xFF0B5648)
+        : const Color(0xFF107966);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'QR Code',
+          (AppLocalizations.of(context)!.qrcode),
           style: TextStyle(color: textColor),
         ),
         centerTitle: true,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class DevicePermissionScreen extends StatefulWidget {
@@ -70,7 +71,7 @@ class _DevicePermissionScreenState extends State<DevicePermissionScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Permission Required'),
+          title: Text((AppLocalizations.of(context)!.cameraPermissionIsRequire)),
           content: Text(
             '${_getPermissionName(permission)} permission is permanently denied. '
             'Please enable it in the app settings.',
@@ -78,14 +79,14 @@ class _DevicePermissionScreenState extends State<DevicePermissionScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text((AppLocalizations.of(context)!.cancel)),
             ),
             TextButton(
               onPressed: () {
                 openAppSettings();
                 Navigator.of(context).pop();
               },
-              child: const Text('Open Settings'),
+              child: Text((AppLocalizations.of(context)!.openSettings)),
             ),
           ],
         );
@@ -139,7 +140,7 @@ class _DevicePermissionScreenState extends State<DevicePermissionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Device Permissions'),
+        title: Text((AppLocalizations.of(context)!.devicePermissions)),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
@@ -151,7 +152,7 @@ class _DevicePermissionScreenState extends State<DevicePermissionScreen> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color.fromRGBO(224, 124, 124, 1),
+                  color: const Color(0xFF107966),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 alignment: Alignment.center,
@@ -167,10 +168,10 @@ class _DevicePermissionScreenState extends State<DevicePermissionScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
+          Padding(
             padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Text(
-              'Manage App Permissions',
+              (AppLocalizations.of(context)!.manageAppPermission),
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ),

@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:onboardx_app/l10n/app_localizations.dart';
+import 'package:onboardx_app/services/supabase_service.dart';
 
 class ManageAccountScreen extends StatefulWidget {
   final Map<String, dynamic> user;
@@ -25,7 +25,7 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
   bool _editing = false;
   bool _loading = true;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final SupabaseService _supabaseService = SupabaseService();
   Map<String, dynamic> _userData = {};
 
   Color? get appBarIconColor => Theme.of(context).iconTheme.color;
@@ -33,6 +33,9 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
   @override
   void initState() {
     super.initState();
+    nameCtrl = TextEditingController();
+    phoneCtrl = TextEditingController();
+    usernameCtrl = TextEditingController();
     _fetchUserData();
   }
 
@@ -40,26 +43,35 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
     try {
       User? user = _auth.currentUser;
       if (user != null) {
-        DocumentSnapshot userDoc = await _firestore
-            .collection('users')
-            .doc(user.uid)
-            .get();
-
-        if (userDoc.exists) {
+        // Fetch from Supabase only
+        final userProfile = await _supabaseService.getUserProfile(user.uid);
+        
+        if (userProfile != null) {
           setState(() {
-            _userData = userDoc.data() as Map<String, dynamic>;
-            nameCtrl = TextEditingController(text: _userData['fullName'] ?? '');
-            phoneCtrl = TextEditingController(text: _userData['phoneNumber'] ?? '');
-            usernameCtrl = TextEditingController(text: _userData['username'] ?? '');
+            _userData = {
+              'fullName': userProfile['full_name'] ?? '',
+              'username': userProfile['username'] ?? '',
+              'email': userProfile['email'] ?? '',
+              'phoneNumber': userProfile['phone_number'] ?? '',
+              'workUnit': userProfile['work_unit'] ?? '',
+              'workplace': userProfile['work_place'] ?? '',
+              'workType': userProfile['work_type'] ?? '',
+              'profileImageUrl': userProfile['profile_image_url'],
+              'created_at': userProfile['created_at'],
+            };
+            
+            nameCtrl.text = _userData['fullName'] ?? '';
+            phoneCtrl.text = _userData['phoneNumber'] ?? '';
+            usernameCtrl.text = _userData['username'] ?? '';
             _loading = false;
           });
         } else {
-          // If no data in Firestore, use data from widget.user
+          // If no data in Supabase, use data from widget.user
           setState(() {
             _userData = widget.user;
-            nameCtrl = TextEditingController(text: _userData['fullName'] ?? '');
-            phoneCtrl = TextEditingController(text: _userData['phoneNumber'] ?? '');
-            usernameCtrl = TextEditingController(text: _userData['username'] ?? '');
+            nameCtrl.text = _userData['fullName'] ?? '';
+            phoneCtrl.text = _userData['phoneNumber'] ?? '';
+            usernameCtrl.text = _userData['username'] ?? '';
             _loading = false;
           });
         }
@@ -69,9 +81,9 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
       // Fallback to widget.user data if error occurs
       setState(() {
         _userData = widget.user;
-        nameCtrl = TextEditingController(text: _userData['fullName'] ?? '');
-        phoneCtrl = TextEditingController(text: _userData['phoneNumber'] ?? '');
-        usernameCtrl = TextEditingController(text: _userData['username'] ?? '');
+        nameCtrl.text = _userData['fullName'] ?? '';
+        phoneCtrl.text = _userData['phoneNumber'] ?? '';
+        usernameCtrl.text = _userData['username'] ?? '';
         _loading = false;
       });
     }
@@ -89,16 +101,76 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
     if (!_editing) return;
     
     final picker = ImagePicker();
-    final XFile? file = await picker.pickImage(source: ImageSource.gallery);
-    if (file != null) {
-      setState(() => _pickedImage = File(file.path));
+    try {
+      final XFile? file = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1200,
+        maxHeight: 1200,
+        imageQuality: 85,
+      );
+      
+      if (file != null) {
+        final imageFile = File(file.path);
+        final fileSize = await imageFile.length();
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        
+        // Check file size
+        if (fileSize > maxSize) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Image too large. Maximum size is 10MB'),
+                backgroundColor: Colors.orange,
+                duration: Duration(seconds: 3),
+              ),
+            );
+          }
+          return;
+        }
+        
+        // Check file extension
+        final fileExtension = file.path.split('.').last.toLowerCase();
+        final supportedFormats = SupabaseService.supportedImageFormats;
+        
+        if (!supportedFormats.contains(fileExtension)) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Unsupported format. Supported: ${supportedFormats.join(', ')}',
+                ),
+                backgroundColor: Colors.orange,
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
+          return;
+        }
+        
+        setState(() => _pickedImage = imageFile);
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error selecting image: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 
-  String _formatTimestamp(Timestamp timestamp) {
-    final date = timestamp.toDate();
-    final format = DateFormat('dd MMMM yyyy \'at\' HH:mm:ss');
-    return format.format(date);
+  String _formatDateTime(String dateTimeString) {
+    try {
+      final date = DateTime.parse(dateTimeString);
+      final format = DateFormat('dd MMMM yyyy \'at\' HH:mm:ss');
+      return format.format(date);
+    } catch (e) {
+      return 'Unknown date';
+    }
   }
 
   Future<void> _saveProfile() async {
@@ -106,29 +178,17 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
     setState(() => _saving = true);
 
     try {
-      String? imageUrl;
-      
-      // Upload image if selected
-      if (_pickedImage != null) {
-        final storageRef = FirebaseStorage.instance
-            .ref()
-            .child('profile_images')
-            .child('${_auth.currentUser!.uid}.jpg');
-        
-        await storageRef.putFile(_pickedImage!);
-        imageUrl = await storageRef.getDownloadURL();
-      }
+      User? user = _auth.currentUser;
+      if (user == null) return;
 
-      // Update user data in Firestore
-      await _firestore
-          .collection('users')
-          .doc(_auth.currentUser!.uid)
-          .update({
-            'fullName': nameCtrl.text.trim(),
-            'phoneNumber': phoneCtrl.text.trim(),
-            'username': usernameCtrl.text.trim(),
-            if (imageUrl != null) 'profileImageUrl': imageUrl,
-          });
+      // Use the new updateUserProfileWithImage method that handles old image deletion
+      await _supabaseService.updateUserProfileWithImage(
+        uid: user.uid,
+        fullName: nameCtrl.text.trim(),
+        username: usernameCtrl.text.trim(),
+        phoneNumber: phoneCtrl.text.trim(),
+        newProfileImage: _pickedImage,
+      );
 
       // Refresh user data after update
       await _fetchUserData();
@@ -138,16 +198,44 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
           const SnackBar(
             content: Text('Profile updated successfully'),
             backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
           ),
         );
-        setState(() => _editing = false);
+        setState(() {
+          _editing = false;
+          _pickedImage = null;
+        });
+      }
+    } on Exception catch (e) {
+      String errorMessage = 'Error updating profile';
+      
+      // User-friendly error messages
+      if (e.toString().contains('Unsupported image format')) {
+        errorMessage = 'Unsupported image format. Please use JPG, PNG, GIF, WebP, BMP, HEIC, or HEIF.';
+      } else if (e.toString().contains('File too large')) {
+        errorMessage = 'Image too large. Maximum size is 10MB.';
+      } else if (e.toString().contains('Username already taken')) {
+        errorMessage = 'Username already taken. Please choose another one.';
+      } else {
+        errorMessage = 'Error updating profile: ${e.toString().replaceAll('Exception: ', '')}';
+      }
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error updating profile: $e'),
+            content: Text('Unexpected error: $e'),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
           ),
         );
       }
@@ -222,18 +310,30 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
     final theme = Theme.of(context);
     final bool isDarkMode = theme.brightness == Brightness.dark;
     final primaryColor = isDarkMode 
-        ? const Color.fromRGBO(180, 100, 100, 1)
-        : const Color.fromRGBO(224, 124, 124, 1);
+        ? const Color(0xFF0B5648)
+        : const Color(0xFF107966);
     final cardColor = theme.cardColor;
 
-    final Timestamp? createdAt = _userData['createdAt'];
+    final String? createdAtString = _userData['created_at'];
 
     if (_loading) {
       return Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
         body: Center(
-          child: CircularProgressIndicator(
-            color: primaryColor,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(
+                color: primaryColor,
+              ),
+              SizedBox(height: 16),
+              Text(
+                (AppLocalizations.of(context)!.lodingProfile),
+                style: TextStyle(
+                  color: theme.textTheme.bodyLarge?.color,
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -242,7 +342,7 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text('Manage Your Account'),
+        title: Text((AppLocalizations.of(context)!.manageYourAccount)),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
@@ -275,6 +375,7 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
               onPressed: () {
                 setState(() => _editing = true);
               },
+              tooltip: 'Edit Profile',
             ),
           if (_editing)
             IconButton(
@@ -289,6 +390,7 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
                   _pickedImage = null;
                 });
               },
+              tooltip: 'Cancel Editing',
             ),
         ],
       ),
@@ -296,53 +398,73 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
         child: Column(
           children: [
             const SizedBox(height: 16),
-            // Profile Image
-            GestureDetector(
-              onTap: _pickImage,
-              child: Stack(
-                children: [
-                  // Use your preferred default avatar
-                  if (_pickedImage != null)
-                    CircleAvatar(
-                      radius: 48,
-                      backgroundImage: FileImage(_pickedImage!),
-                    )
-                  else if (_userData['profileImageUrl'] != null && _userData['profileImageUrl'].isNotEmpty)
-                    CircleAvatar(
-                      radius: 48,
-                      backgroundImage: NetworkImage(_userData['profileImageUrl']),
-                    )
-                  else
-                    const CircleAvatar(
-                      radius: 48,
-                      backgroundColor: Colors.white,
-                      child: Icon(Icons.person, size: 40, color: Colors.grey),
-                    ),
-                  if (_editing)
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: primaryColor,
-                          shape: BoxShape.circle,
+            
+            // Profile Image Section
+            Column(
+              children: [
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: Stack(
+                    children: [
+                      // Profile Image with different states
+                      if (_pickedImage != null)
+                        CircleAvatar(
+                          radius: 48,
+                          backgroundImage: FileImage(_pickedImage!),
+                        )
+                      else if (_userData['profileImageUrl'] != null && _userData['profileImageUrl'].isNotEmpty)
+                        CircleAvatar(
+                          radius: 48,
+                          backgroundImage: NetworkImage(_userData['profileImageUrl']),
+                          onBackgroundImageError: (exception, stackTrace) {
+                            print("Error loading profile image: $exception");
+                          },
+                        )
+                      else
+                        const CircleAvatar(
+                          radius: 48,
+                          backgroundColor: Colors.white,
+                          child: Icon(Icons.person, size: 40, color: Colors.grey),
                         ),
-                        child: const Icon(
-                          Icons.camera_alt,
-                          size: 20,
-                          color: Colors.white,
+                      
+                      // Camera icon for editing
+                      if (_editing)
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: primaryColor,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              size: 20,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                ],
-              ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _editing ? 'Tap avatar to change photo' : '',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              _editing ? 'Tap avatar to change' : '',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            
             const SizedBox(height: 24),
 
             Form(
@@ -358,14 +480,17 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
                         ? TextFormField(
                             controller: usernameCtrl,
                             decoration: InputDecoration(
-                              labelText: 'Username',
-                              border: OutlineInputBorder(),
+                              labelText: (AppLocalizations.of(context)!.username),
+                              hintText: (AppLocalizations.of(context)!.enterYourUsername),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               filled: true,
                               fillColor: cardColor,
                               prefixIcon: Icon(Icons.person, color: primaryColor),
                             ),
                             validator: (v) =>
-                                (v ?? '').trim().isEmpty ? 'Username required' : null,
+                                (v ?? '').trim().isEmpty ? 'Username is required' : null,
                           )
                         : _buildReadOnlyField('Username', _userData['username'] ?? ''),
                   ),
@@ -378,14 +503,17 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
                         ? TextFormField(
                             controller: nameCtrl,
                             decoration: InputDecoration(
-                              labelText: 'Full Name',
-                              border: OutlineInputBorder(),
+                              labelText: (AppLocalizations.of(context)!.fullName),
+                              hintText: (AppLocalizations.of(context)!.enterYourFullName),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               filled: true,
                               fillColor: cardColor,
                               prefixIcon: Icon(Icons.badge, color: primaryColor),
                             ),
                             validator: (v) =>
-                                (v ?? '').trim().isEmpty ? 'Name required' : null,
+                                (v ?? '').trim().isEmpty ? 'Full name is required' : null,
                           )
                         : _buildReadOnlyField('Full Name', _userData['fullName'] ?? ''),
                   ),
@@ -402,8 +530,11 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
                         ? TextFormField(
                             controller: phoneCtrl,
                             decoration: InputDecoration(
-                              labelText: 'Phone Number',
-                              border: OutlineInputBorder(),
+                              labelText: (AppLocalizations.of(context)!.phoneNumber),
+                              hintText: (AppLocalizations.of(context)!.enterYourPhoneNumber),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               filled: true,
                               fillColor: cardColor,
                               prefixIcon: Icon(Icons.phone, color: primaryColor),
@@ -411,7 +542,7 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
                             keyboardType: TextInputType.phone,
                             validator: (v) => (v != null && v.length >= 9)
                                 ? null
-                                : 'Enter valid phone number',
+                                : 'Please enter a valid phone number',
                           )
                         : _buildReadOnlyField('Phone Number', _userData['phoneNumber'] ?? ''),
                   ),
@@ -442,12 +573,12 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
                       children: [
                         Icon(Icons.calendar_today_outlined, color: primaryColor),
                         const SizedBox(width: 16),
-                        const Text('Created at'),
+                        Text((AppLocalizations.of(context)!.createdAt)),
                         const Spacer(),
                         Text(
-                          createdAt != null 
-                            ? _formatTimestamp(createdAt)
-                            : 'Unknown',
+                          createdAtString != null 
+                              ? _formatDateTime(createdAtString)
+                              : 'Unknown',
                           style: TextStyle(
                             color: Theme.of(context).textTheme.bodySmall?.color,
                           ),
@@ -456,6 +587,7 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
                     ),
                   ),
                   
+                  // Save Button (only when editing)
                   if (_editing) ...[
                     const SizedBox(height: 32),
                     Padding(
@@ -466,17 +598,25 @@ class _ManageAccountScreenState extends State<ManageAccountScreen> {
                           onPressed: _saving ? null : _saveProfile,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryColor,
+                            foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
+                            elevation: 2,
                           ),
                           child: _saving
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : const Text(
-                                  'Save Changes',
-                                  style: TextStyle(
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
                                     color: Colors.white,
+                                  ),
+                                )
+                              : Text(
+                                  (AppLocalizations.of(context)!.saveChanges),
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
