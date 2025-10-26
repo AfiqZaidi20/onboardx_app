@@ -1,126 +1,11 @@
+// document_manager_screen.dart
+
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:file_picker/file_picker.dart';
-import 'package:onboardx_app/l10n/app_localizations.dart';
-import 'package:open_filex/open_filex.dart';
-import 'package:dio/dio.dart';
+import 'package:open_file/open_file.dart';
+import 'package:onboarding_tnb_app_part_eizul/services/supabase_service.dart';
 
-// Enums to manage file status
-enum DocumentStatus { uploaded, pending, uploading }
-
-// Data model for a single file or a folder
-abstract class FileItem {
-  final String name;
-  FileItem({required this.name});
-}
-
-// Represents a single file
-class Document extends FileItem {
-  final String path;
-  final DocumentStatus status;
-
-  Document({
-    required super.name,
-    required this.path,
-    this.status = DocumentStatus.pending,
-  });
-
-  Document copyWith({String? name, String? path, DocumentStatus? status}) {
-    return Document(
-      name: name ?? this.name,
-      path: path ?? this.path,
-      status: status ?? this.status,
-    );
-  }
-}
-
-// Represents a folder
-class Folder extends FileItem {
-  final List<FileItem> children;
-  Folder({required super.name, required this.children});
-
-  Folder copyWith({String? name, List<FileItem>? children}) {
-    return Folder(
-      name: name ?? this.name,
-      children: children ?? this.children,
-    );
-  }
-}
-
-// Service class for managing file and folder data
-class FileManagerService {
-  final Dio _dio = Dio();
-  // TODO: Replace with your actual API base URL
-  final String _baseUrl = 'https://your-api-url.com/api';
-
-  // Placeholder data for demonstration
-  List<FileItem> _rootFolders = []; // The list is now empty
-
-  Future<List<FileItem>> getFoldersAndFiles({String? folderName}) async {
-    // TODO: Replace with your API GET request using Dio
-    // Example:
-    // final response = await _dio.get('$_baseUrl/files', queryParameters: {'folder': folderName});
-    // return response.data.map((json) => ...).toList();
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
-    if (folderName == null) {
-      return _rootFolders;
-    } else {
-      final folder = _rootFolders.firstWhere((f) => f.name == folderName && f is Folder) as Folder;
-      return folder.children;
-    }
-  }
-
-  Future<Folder> createFolder(String name) async {
-    // TODO: Replace with your API POST request using Dio
-    // Example:
-    // final response = await _dio.post('$_baseUrl/folders', data: {'name': name});
-    // return Folder.fromJson(response.data);
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
-    final newFolder = Folder(name: name, children: []);
-    _rootFolders.add(newFolder);
-    return newFolder;
-  }
-
-  Future<void> deleteFolder(Folder folder) async {
-    // TODO: Replace with your API DELETE request using Dio
-    // Example:
-    // await _dio.delete('$_baseUrl/folders/${folder.id}');
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
-    _rootFolders.remove(folder);
-  }
-
-  Future<Document> addFileToFolder(Folder parent, PlatformFile file) async {
-    // TODO: Replace with your API POST request for file upload using Dio
-    // Example:
-    // final formData = FormData.fromMap({'file': await MultipartFile.fromFile(file.path!)});
-    // final response = await _dio.post('$_baseUrl/folders/${parent.id}/files', data: formData);
-    // return Document.fromJson(response.data);
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
-    final newFile = Document(name: file.name!, path: file.path!, status: DocumentStatus.uploaded);
-    parent.children.add(newFile);
-    return newFile;
-  }
-
-  Future<void> removeFile(Document file) async {
-    // TODO: Replace with your API DELETE request for file
-    // Example:
-    // await _dio.delete('$_baseUrl/files/${file.id}');
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
-  }
-
-  Future<void> editFile(Document file, PlatformFile newFile) async {
-    // TODO: Replace with your API PUT request for file
-    // Example:
-    // final formData = FormData.fromMap({'file': await MultipartFile.fromFile(newFile.path!)});
-    // await _dio.put('$_baseUrl/files/${file.id}', data: formData);
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
-  }
-
-  void sortFolders() {
-    _rootFolders.sort((a, b) => a.name.compareTo(b.name));
-  }
-}
-
-// NOTE: This class name was changed from DocumentManagerScreen
 class DocumentManagerScreen extends StatefulWidget {
   const DocumentManagerScreen({super.key});
 
@@ -129,60 +14,76 @@ class DocumentManagerScreen extends StatefulWidget {
 }
 
 class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
-  final FileManagerService _fileManagerService = FileManagerService();
-  String _currentPath = 'My Document';
-  Folder? _currentParentFolder;
+  final SupabaseService _supabaseService = SupabaseService();
+  Future<List<dynamic>>? _filesFuture;
+  
+  final List<_PathSegment> _pathHistory = [];
+  String? _currentParentFolderId;
+
+  @override
+  void initState() {
+    super.initState();
+    _pathHistory.add(_PathSegment(id: null, name: 'Home'));
+    _loadFiles();
+  }
+
+  void _loadFiles() {
+    setState(() {
+      _filesFuture = _supabaseService.getFilesAndFolders(_currentParentFolderId);
+    });
+  }
 
   void _navigateToFolder(Folder folder) {
     setState(() {
-      _currentParentFolder = folder;
-      _currentPath = folder.name;
+      _pathHistory.add(_PathSegment(id: folder.id, name: folder.name));
+      _currentParentFolderId = folder.id;
+      _loadFiles();
     });
   }
 
   void _goBack() {
-    setState(() {
-      _currentParentFolder = null;
-      _currentPath = (AppLocalizations.of(context)!.mydocument1);
-    });
+    if (_pathHistory.length > 1) {
+      setState(() {
+        _pathHistory.removeLast();
+        _currentParentFolderId = _pathHistory.last.id;
+        _loadFiles();
+      });
+    }
   }
 
-  void _createFolder() {
+  void _createFolder() async {
     TextEditingController controller = TextEditingController();
-    showDialog(
+    await showDialog(
       context: context,
       builder: (context) {
-        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-        final Color dialogBackground = isDarkMode ? Colors.grey[900]! : Colors.white;
-        final Color textColor = Theme.of(context).colorScheme.onBackground;
-        final Color hintColor = isDarkMode ? Colors.grey[400]! : Colors.grey[600]!;
-        
         return AlertDialog(
-          backgroundColor: dialogBackground,
-          title: Text((AppLocalizations.of(context)!.createNewFolder), style: TextStyle(color: textColor)),
+          title: const Text('Create New Folder'),
           content: TextField(
             controller: controller,
-            style: TextStyle(color: textColor),
-            decoration: InputDecoration(
-              hintText: (AppLocalizations.of(context)!.folderName),
-              hintStyle: TextStyle(color: hintColor),
-            ),
+            decoration: const InputDecoration(hintText: 'Folder Name'),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text((AppLocalizations.of(context)!.cancel), style: TextStyle(color: hintColor)),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () async {
                 if (controller.text.isNotEmpty) {
-                  Navigator.pop(context);
-                  await _fileManagerService.createFolder(controller.text);
-                  setState(() {}); // Trigger a rebuild to refresh the UI
-                  _showSnackbar('Folder "${controller.text}" created.');
+                  try {
+                    Navigator.pop(context);
+                    await _supabaseService.createFolder(
+                      controller.text, 
+                      _currentParentFolderId
+                    );
+                    _loadFiles();
+                    _showSnackbar('Folder "${controller.text}" created.', type: _SnackbarType.success);
+                  } catch (e) {
+                    _showSnackbar('Error creating folder: $e', type: _SnackbarType.error);
+                  }
                 }
               },
-              child: Text((AppLocalizations.of(context)!.create)),
+              child: const Text('Create'),
             ),
           ],
         );
@@ -191,83 +92,160 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
   }
 
   void _addFileToCurrentFolder() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null && _currentParentFolder != null) {
-      final platformFile = result.files.first;
-      await _fileManagerService.addFileToFolder(_currentParentFolder!, platformFile);
-      setState(() {}); // Trigger a rebuild to refresh the UI
-      _showSnackbar('File "${platformFile.name}" added successfully!');
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+    );
+    
+    if (result != null && result.files.isNotEmpty) {
+      try {
+        final platformFile = result.files.first;
+        _showSnackbar('Uploading "${platformFile.name}"...', type: _SnackbarType.info);
+        
+        await _supabaseService.uploadFile(
+          platformFile, 
+          _currentParentFolderId
+        );
+        
+        _loadFiles();
+        _showSnackbar('File uploaded successfully!', type: _SnackbarType.success);
+      } catch (e) {
+        _showSnackbar('Error uploading file: $e', type: _SnackbarType.error);
+      }
     }
   }
 
   void _openFile(Document doc) async {
-    if (doc.path.isNotEmpty) {
-      await OpenFilex.open(doc.path);
+    try {
+      _showSnackbar('Opening ${doc.name}...', type: _SnackbarType.info);
+      
+      // Download and open the actual file
+      final filePath = await _supabaseService.downloadFile(doc.path, doc.name);
+      
+      if (filePath != null) {
+        await OpenFile.open(filePath);
+        _showSnackbar('${doc.name} opened successfully!', type: _SnackbarType.success);
+      } else {
+        _showSnackbar('Failed to open ${doc.name}', type: _SnackbarType.error);
+      }
+    } catch (e) {
+      _showSnackbar('Failed to open file: $e', type: _SnackbarType.error);
     }
   }
 
   void _removeFile(Document doc) async {
-    // This is the new line that fixes the issue
-    _currentParentFolder?.children.remove(doc);
-
-    // This line is for API calls, which is currently a placeholder
-    await _fileManagerService.removeFile(doc);
-
-    setState(() {}); // Trigger a rebuild to refresh the UI
-    _showSnackbar('File removed successfully!');
-  }
-
-  void _deleteFolder(Folder folder) async {
-    await _fileManagerService.deleteFolder(folder);
-    setState(() {}); // Trigger a rebuild to refresh the UI
-    _showSnackbar('Folder "${folder.name}" deleted.');
-  }
-
-  void _editFile(Document doc) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      final newFile = result.files.first;
-      await _fileManagerService.editFile(doc, newFile);
-      setState(() {}); // Trigger a rebuild to refresh the UI
-      _showSnackbar('File "${doc.name}" updated successfully!');
+    try {
+      await _supabaseService.deleteFile(doc.id);
+      _loadFiles();
+      _showSnackbar('File "${doc.name}" removed successfully!', type: _SnackbarType.success);
+    } catch (e) {
+      _showSnackbar('Error removing file: $e', type: _SnackbarType.error);
     }
   }
 
-  void _sortFolders() {
-    _fileManagerService.sortFolders();
-    setState(() {}); // Trigger a rebuild to refresh the UI
-    _showSnackbar('Folders sorted alphabetically.');
+  void _deleteFolder(Folder folder) async {
+    try {
+      await _supabaseService.deleteFolder(folder.id, recursive: false);
+      _loadFiles(); // Reload to show the folder is gone
+      _showSnackbar('Folder "${folder.name}" has been deleted.', type: _SnackbarType.success);
+    } on FolderNotEmptyException {
+      // Folder is not empty, show a confirmation dialog
+      final confirmDelete = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Delete Folder?'),
+          content: Text(
+              'The folder "${folder.name}" is not empty. Do you want to delete it and all of its contents? This action cannot be undone.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Delete All'),
+            ),
+          ],
+        ),
+      );
+
+      if (confirmDelete == true) {
+        try {
+          // User confirmed, so call delete with recursive flag
+          await _supabaseService.deleteFolder(folder.id, recursive: true);
+          _loadFiles(); // Reload to show the folder is gone
+          _showSnackbar('Folder "${folder.name}" and all its contents have been deleted.', type: _SnackbarType.success);
+        } catch (e) {
+          _showSnackbar('Error deleting folder contents: $e', type: _SnackbarType.error);
+        }
+      }
+    } catch (e) {
+      _showSnackbar('Error deleting folder: $e', type: _SnackbarType.error);
+    }
   }
 
-  void _showSnackbar(String message) {
+  void _showSnackbar(String message, {_SnackbarType type = _SnackbarType.info}) {
+    Color backgroundColor;
+    switch (type) {
+      case _SnackbarType.success:
+        backgroundColor = Colors.green;
+        break;
+      case _SnackbarType.error:
+        backgroundColor = Colors.red;
+        break;
+      case _SnackbarType.info:
+        backgroundColor = Colors.blue;
+        break;
+    }
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: backgroundColor,
+      ),
     );
   }
 
+  void _downloadFile(Document doc) async {
+    try {
+      _showSnackbar('Downloading ${doc.name}...', type: _SnackbarType.info);
+      final filePath = await _supabaseService.downloadFile(doc.path, doc.name);
+      
+      if (filePath != null) {
+        _showSnackbar('${doc.name} downloaded successfully!', type: _SnackbarType.success);
+      } else {
+        _showSnackbar('Failed to download ${doc.name}', type: _SnackbarType.error);
+      }
+    } catch (e) {
+      _showSnackbar('Error downloading file: $e', type: _SnackbarType.error);
+    }
+  }
+
   void _showFileContextMenu(Document doc) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final Color menuBackground = isDarkMode ? Colors.grey[900]! : Colors.white;
-    final Color textColor = Theme.of(context).colorScheme.onBackground;
-    
     showModalBottomSheet(
       context: context,
-      backgroundColor: menuBackground,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.edit, color: textColor),
-              title: Text((AppLocalizations.of(context)!.edit), style: TextStyle(color: textColor)),
+              leading: const Icon(Icons.open_in_new),
+              title: const Text('Open'),
               onTap: () {
                 Navigator.pop(context);
-                _editFile(doc);
+                _openFile(doc);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete, color: Color(0xFF107966)),
-              title: Text((AppLocalizations.of(context)!.remove), style: TextStyle(color: textColor)),
+              leading: const Icon(Icons.download),
+              title: const Text('Download'),
+              onTap: () {
+                Navigator.pop(context);
+                _downloadFile(doc);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete),
+              title: const Text('Remove'),
               onTap: () {
                 Navigator.pop(context);
                 _removeFile(doc);
@@ -280,28 +258,15 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
   }
 
   void _showFolderContextMenu(Folder folder) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final Color menuBackground = isDarkMode ? Colors.grey[900]! : Colors.white;
-    final Color textColor = Theme.of(context).colorScheme.onBackground;
-    
     showModalBottomSheet(
       context: context,
-      backgroundColor: menuBackground,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.drive_file_move_outlined, color: textColor),
-              title: Text((AppLocalizations.of(context)!.move), style: TextStyle(color: textColor)),
-              onTap: () {
-                Navigator.pop(context);
-                _showSnackbar('Move functionality coming soon!');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Color(0xFF107966)),
-              title: Text((AppLocalizations.of(context)!.delete), style: TextStyle(color: textColor)),
+              leading: const Icon(Icons.delete),
+              title: const Text('Delete'),
               onTap: () {
                 Navigator.pop(context);
                 _deleteFolder(folder);
@@ -315,45 +280,40 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final Color scaffoldBackground = Theme.of(context).scaffoldBackgroundColor;
-    final Color textColor = Theme.of(context).colorScheme.onBackground;
-    final Color hintColor = isDarkMode ? Colors.grey[400]! : Colors.grey[600]!;
-    
-    final bool isRoot = _currentPath == (AppLocalizations.of(context)!.mydocument);
+    final currentPathSegment = _pathHistory.last;
+    final bool isRoot = currentPathSegment.id == null;
+
     return Scaffold(
-      backgroundColor: scaffoldBackground,
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text(_currentPath, style: TextStyle(color: textColor)),
+        title: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          reverse: true,
+          child: Row(
+            children: _pathHistory.map((segment) {
+              return Text(
+                '${segment.name} ${segment == currentPathSegment ? '' : '> '}',
+                style: TextStyle(
+                  fontSize: 18, 
+                  fontWeight: segment == currentPathSegment ? FontWeight.bold : FontWeight.normal
+                ),
+              );
+            }).toList(),
+          ),
+        ),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
-        foregroundColor: textColor,
+        foregroundColor: Colors.black,
         leading: isRoot
             ? null
             : IconButton(
-                icon: Icon(Icons.arrow_back, color: textColor),
+                icon: const Icon(Icons.arrow_back),
                 onPressed: _goBack,
               ),
-        actions: [
-          if (isRoot)
-            PopupMenuButton<String>(
-              onSelected: (String result) {
-                if (result == 'sort') {
-                  _sortFolders();
-                }
-              },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                PopupMenuItem<String>(
-                  value: 'sort',
-                  child: Text((AppLocalizations.of(context)!.sortbyNameAZ), style: TextStyle(color: textColor)),
-                ),
-              ],
-            ),
-        ],
       ),
-      body: FutureBuilder<List<FileItem>>(
-        future: _fileManagerService.getFoldersAndFiles(folderName: _currentParentFolder?.name),
+      body: FutureBuilder<List<dynamic>>(
+        future: _filesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -363,7 +323,7 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
             return Center(
               child: Text(
                 isRoot ? 'No folders yet.' : 'This folder is empty.',
-                style: TextStyle(fontSize: 16, color: hintColor),
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               ),
             );
           } else {
@@ -375,21 +335,15 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
                 final item = currentDirectory[index];
                 if (item is Folder) {
                   return FolderCard(
-                    folder: item,
-                    onTap: () => _navigateToFolder(item),
-                    onMenuTap: () => _showFolderContextMenu(item),
+                    folder: item, 
+                    onTap: () => _navigateToFolder(item), 
+                    onMenuTap: () => _showFolderContextMenu(item)
                   );
                 } else if (item is Document) {
                   return DocumentCard(
-                    document: item,
-                    onTap: () {
-                      if (item.status == DocumentStatus.uploaded) {
-                        _openFile(item);
-                      } else {
-                        _editFile(item);
-                      }
-                    },
-                    onMenuTap: () => _showFileContextMenu(item),
+                    document: item, 
+                    onTap: () => _openFile(item), 
+                    onMenuTap: () => _showFileContextMenu(item)
                   );
                 }
                 return Container();
@@ -401,10 +355,19 @@ class _DocumentManagerScreenState extends State<DocumentManagerScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: isRoot ? _createFolder : _addFileToCurrentFolder,
         child: Icon(isRoot ? Icons.create_new_folder : Icons.add),
-        tooltip: isRoot ? (AppLocalizations.of(context)!.createNewFolder) : (AppLocalizations.of(context)!.addNewFile),
+        tooltip: isRoot ? 'Create New Folder' : 'Add New File',
       ),
     );
   }
+}
+
+enum _SnackbarType { success, error, info }
+
+class _PathSegment {
+  final String? id;
+  final String name;
+
+  _PathSegment({required this.id, required this.name});
 }
 
 class FolderCard extends StatelessWidget {
@@ -421,23 +384,16 @@ class FolderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final Color cardColor = Theme.of(context).cardColor;
-    final Color textColor = Theme.of(context).colorScheme.onBackground;
-    final Color hintColor = isDarkMode ? Colors.grey[400]! : Colors.grey[600]!;
-    
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      color: cardColor,
       child: ListTile(
-        leading: Icon(Icons.folder_open, color: Colors.blue, size: 40),
+        leading: const Icon(Icons.folder_open, color: Colors.blue, size: 40),
         title: Text(
           folder.name,
-          style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        subtitle: Text('${folder.children.length} items', style: TextStyle(color: hintColor)),
         trailing: IconButton(
-          icon: Icon(Icons.more_vert, color: hintColor),
+          icon: const Icon(Icons.more_vert),
           onPressed: onMenuTap,
         ),
         onTap: onTap,
@@ -460,42 +416,9 @@ class DocumentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final Color cardColor = Theme.of(context).cardColor;
-    final Color textColor = Theme.of(context).colorScheme.onBackground;
-    final Color hintColor = isDarkMode ? Colors.grey[400]! : Colors.grey[600]!;
-    final Color borderColor = isDarkMode ? Colors.grey[700]! : Colors.grey[300]!;
-
-    IconData icon;
-    Color iconColor;
-    String subtitle;
-    String buttonText;
-
-    switch (document.status) {
-      case DocumentStatus.uploaded:
-        icon = Icons.check_circle;
-        iconColor = Colors.green;
-        subtitle = document.name;
-        buttonText = (AppLocalizations.of(context)!.view);
-        break;
-      case DocumentStatus.uploading:
-        icon = Icons.cloud_upload;
-        iconColor = Colors.blue;
-        subtitle = (AppLocalizations.of(context)!.uploading1);
-        buttonText = (AppLocalizations.of(context)!.uploading);
-        break;
-      case DocumentStatus.pending:
-        icon = Icons.add_circle;
-        iconColor = hintColor;
-        subtitle = document.name;
-        buttonText = (AppLocalizations.of(context)!.upload);
-        break;
-    }
-
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      elevation: isDarkMode ? 0 : 1,
-      color: cardColor,
+      elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -504,36 +427,20 @@ class DocumentCard extends StatelessWidget {
         leading: Container(
           width: 40,
           height: 40,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             shape: BoxShape.circle,
-            color: iconColor.withOpacity(0.1),
+            color: Colors.lightGreen,
           ),
-          child: Center(
-            child: document.status == DocumentStatus.uploading
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(iconColor),
-                    ),
-                  )
-                : Icon(icon, color: iconColor, size: 24),
+          child: const Center(
+            child: Icon(Icons.description, color: Colors.white, size: 24),
           ),
         ),
         title: Text(
           document.name,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: textColor,
-          ),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: TextStyle(
-            fontSize: 13,
-            color: hintColor,
+            color: Colors.black87,
           ),
         ),
         trailing: Row(
@@ -542,24 +449,24 @@ class DocumentCard extends StatelessWidget {
             SizedBox(
               height: 30,
               child: OutlinedButton(
-                onPressed: document.status == DocumentStatus.uploading ? null : onTap,
+                onPressed: onTap,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: hintColor,
-                  side: BorderSide(color: borderColor),
+                  foregroundColor: Colors.grey[600],
+                  side: BorderSide(color: Colors.grey[300]!),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   visualDensity: VisualDensity.compact,
                 ),
-                child: Text(
-                  buttonText,
-                  style: TextStyle(fontSize: 13, color: hintColor),
+                child: const Text(
+                  'View',
+                  style: TextStyle(fontSize: 13),
                 ),
               ),
             ),
             IconButton(
-              icon: Icon(Icons.more_vert, color: hintColor),
+              icon: const Icon(Icons.more_vert),
               onPressed: onMenuTap,
             ),
           ],
